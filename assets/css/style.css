@@ -473,7 +473,7 @@ html {
 .blog-title {
   font-size: 36px;
   line-height: 36px;
-  text-transform: uppercase;
+  /*text-transform: uppercase;*/
   margin-bottom: 12px;
 }
 .blog-title span {

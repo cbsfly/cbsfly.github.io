@@ -6,7 +6,7 @@ tags:
 imagefeature: backimg.jpeg
 ---
 
- 我是一个大三学生
+我是一个大三学生
 
 就读于电子科技大学
 
