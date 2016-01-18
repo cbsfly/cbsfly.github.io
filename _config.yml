@@ -1,9 +1,9 @@
-title:            HMFAYSAL
-description:      "Omega: The Coolest Theme for Jekyll"
-logo:             omikron.png
-disqus_shortname: hmfaysal
+title:            陈秉慎
+description:      "一个正在学习的iOS开发者"
+logo:             cbs.jpg
+disqus_shortname: cbs
 # Assign a default image for your site's header and footer
-default_bg:       default_bg1.jpg
+default_bg:       background.jpeg
 search:           true
 share:            true
 # Read Time is a calculator tp provide post read-time based on word count. Usage is recommended.
@@ -18,21 +18,21 @@ fin_color:        "255,255,255"
 # Change url to your domain. Leave localhost server or blank when working locally.
 # or use the hint from http://jekyllrb.com/docs/github-pages/ to keep this the same 
 # whether working locally or remotely. Start Jekyll with: jekyll serve --baseurl ''
-url:       		   "http://localhost:4000"
+url:       		   "http://cbsfly.github.io"
 
 # Owner/author information
 owner:
-  name:           Hossain Mohd Faysal
-  avatar:         hmfaysal.jpg
-  email:          hmfaysal@alum.mit.edu
+  name:           陈秉慎
+  avatar:         cbs.png
+  email:          cbs_950320@qq.com
   # Use the coder's toolbox at http://coderstoolbox.net/string/#!encoding=xml&action=encode&charset=us_ascii to encode your description into XML string
   description:    Hossain Mohammad Faysal is an Electrical Engineer and a Mathematician based in Doha, Qatar. His interests are anything that&#8217;s related to math, from math itself to programming languages to music to physics to engineering to philosophy.
   # Social networking links used in footer. Update and remove as you like.
-  twitter:        hmfaysal
-  facebook:       hmfaysal
-  github:         hmfaysal
-  stackexchange:  https://stackexchange.com/users/3402032/hossain-mohd-faysal
-  linkedin:       https://www.linkedin.com/pub/firstname-lastname/12/345/678
+  twitter:        
+  facebook:       
+  github:         cbsfly
+  stackexchange:  
+  linkedin:       
   instagram:      
   flickr:         
   tumblr:         
@@ -62,7 +62,7 @@ links:
     url: /hossain-mohd-faysal
 
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-timezone:    America/New_York
+timezone:    China
 future:      true
 highlighter: pygments
 markdown:    kramdown
@@ -88,8 +88,8 @@ kramdown:
 
 prose:
   rooturl: '_posts'
-  siteurl: 'http://hmfaysal.github.io/'
-  relativeLinks: 'http://hmfaysal.github.io/links.jsonp'
+  siteurl: 'http://cbsfly.github.io'
+  relativeLinks: 'http://cbsfly.github.io/links.jsonp'
   media: 'images'
   metadata:
     _posts:
