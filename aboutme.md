@@ -1,9 +1,9 @@
 ---
 layout: page
 title: About Me
+description: "这是我"
 tags: 
-image:
-  feature: cbs.png
+imagefeature: backimg.jpeg
 ---
 
  我是一个大三学生

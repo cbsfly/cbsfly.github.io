@@ -2,6 +2,7 @@ title:            陈秉慎的学习小记
 description:      "一个正在学习的iOS开发者"
 logo:             cbs.png
 disqus_shortname: cbs
+favicon:          cbs.png
 # Assign a default image for your site's header and footer
 default_bg:       background.jpeg
 search:           true
@@ -26,7 +27,7 @@ owner:
   avatar:         cbs.png
   email:          cbs_950320@qq.com
   # Use the coder's toolbox at http://coderstoolbox.net/string/#!encoding=xml&action=encode&charset=us_ascii to encode your description into XML string
-  description:    Hossain Mohammad Faysal is an Electrical Engineer and a Mathematician based in Doha, Qatar. His interests are anything that&#8217;s related to math, from math itself to programming languages to music to physics to engineering to philosophy.
+  description:    一个正在学习的iOS开发者
   # Social networking links used in footer. Update and remove as you like.
   twitter:        
   facebook:       
@@ -52,11 +53,9 @@ links:
     url: /
     external: false
     icon: home
-  - title: <i class="icon-book"></i> Documentation
-    url: /documentation
   - title: 分类
     url: /categories
-  - title: Tags
+  - title: 标签
     url: /tags
   - title: 关于我
     url: /aboutme
