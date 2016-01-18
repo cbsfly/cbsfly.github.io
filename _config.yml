@@ -5,7 +5,7 @@ disqus_shortname: cbs
 # Assign a default image for your site's header and footer
 default_bg:       background.jpeg
 search:           true
-share:            true
+share:            false
 # Read Time is a calculator tp provide post read-time based on word count. Usage is recommended.
 readtime:         true
 # Specify the average Words per minute. If not defined, 180 will be used
@@ -48,17 +48,17 @@ bing_verify:
 # Links to include in footer navigation
 # For external links add external: true
 links:
-  - title: Home
+  - title: 首页
     url: /
     external: false
     icon: home
   - title: <i class="icon-book"></i> Documentation
     url: /documentation
-  - title: Categories
+  - title: 分类
     url: /categories
   - title: Tags
     url: /tags
-  - title: About Me
+  - title: 关于我
     url: /aboutme
 
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones

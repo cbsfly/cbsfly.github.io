@@ -1,15 +1,12 @@
 ---
 layout: page
-permalink: /hossain-mohd-faysal/index.html
 title: About Me
-tags: [Hossain, Mohd, Faysal, hmfaysal]
+tags: 
 image:
   feature: cbs.png
 ---
-<figure>
-  <img src="{{ site.url }}/images/hossain-faysal.jpg" alt="Hossain Mohammad Faysal">
-  <figcaption>我是一个大三学生</figcaption>
-</figure>
+
+ 我是一个大三学生
 
 就读于电子科技大学
 
