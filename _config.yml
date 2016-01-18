@@ -1,4 +1,4 @@
-title:            陈秉慎
+title:            陈秉慎的学习小记
 description:      "一个正在学习的iOS开发者"
 logo:             cbs.png
 disqus_shortname: cbs
@@ -37,7 +37,7 @@ owner:
   flickr:         
   tumblr:         
   # For Google Authorship https://plus.google.com/authorship
-  google_plus:    https://plus.google.com/u/0/102602916593522619858
+  google_plus:    
 
 # Analytics and webmaster tools stuff goes here
 google_analytics:   UA-39365944-7
@@ -58,8 +58,8 @@ links:
     url: /categories
   - title: Tags
     url: /tags
-  - title: Faysal who?
-    url: /hossain-mohd-faysal
+  - title: About Me
+    url: /aboutme
 
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 timezone:    China
