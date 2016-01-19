@@ -467,7 +467,7 @@ html {
 }
 /* - Brand - */
 .brand img {
-  max-height: 120px;
+  max-height: 180px;
 }
 /* - Blog title and description - */
 .blog-title {
@@ -475,7 +475,7 @@ html {
   line-height: 36px;
   font-family: Fantasy;
   /*text-transform: uppercase;*/
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 .blog-title span {
   display: block;
