@@ -467,7 +467,8 @@ html {
 }
 /* - Brand - */
 .brand img {
-  max-height: 180px;
+  max-height: 120px;
+  bottom:20px;
 }
 /* - Blog title and description - */
 .blog-title {
