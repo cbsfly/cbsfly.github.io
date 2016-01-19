@@ -5,8 +5,9 @@ description: "这是我"
 tags: 
 imagefeature: backimg.jpeg
 ---
+我叫陈秉慎
 
-我是一个大三学生
+是一个大三学生
 
 就读于电子科技大学
 
