@@ -468,13 +468,12 @@ html {
 /* - Brand - */
 .brand img {
   max-height: 120px;
-  bottom:20px;
 }
 /* - Blog title and description - */
 .blog-title {
   font-size: 36px;
   line-height: 36px;
-  font-family: Fantasy;
+  font-family: Monospace;
   /*text-transform: uppercase;*/
   margin-bottom: 12px;
 }
