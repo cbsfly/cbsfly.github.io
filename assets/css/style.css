@@ -472,8 +472,8 @@ html {
 /* - Blog title and description - */
 .blog-title {
   font-size: 36px;
-  line-height: 36px;
-  font-family: Monospace;
+  line-height: 60px;
+  font-family: Fantasy;
   /*text-transform: uppercase;*/
   margin-bottom: 12px;
 }
