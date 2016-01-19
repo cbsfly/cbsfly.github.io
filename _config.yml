@@ -57,7 +57,7 @@ links:
   - title: 标签
     url: /tags
   - title: 关于我
-    url: /aboutme
+    url: /about
 
 # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 timezone:    China
