@@ -5,7 +5,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="cbsfly">
 <meta property="article:tag" content="云计算,Kubernetes,golang">
-<meta name="twitter:card" content="summary"><title>cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/index.html"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async=""></script><script>var Stun = window.Stun || {};
+<meta name="twitter:card" content="summary"><title>cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/index.html"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async="" data-pjax=""></script><script>var Stun = window.Stun || {};
 var CONFIG = {
   root: '/',
   algolia: undefined,
@@ -22,14 +22,14 @@ var CONFIG = {
   zoomImage: {"gapAside":"20px"},
   galleryWaterfall: undefined,
   lazyload: false,
-  pjax: undefined,
+  pjax: {"avoidBanner":false},
   externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
   shortcuts: undefined,
   prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
   sourcePath: {"js":"js","css":"css","images":"images"},
 };
 
-window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">cbsfly</div><div class="header-banner-info__subtitle">寒来暑往 秋收冬藏</div></div><div class="header-banner-arrow"><div class="header-banner-arrow__icon"><i class="fas fa-angle-down"></i></div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content content-home" id="content"><section class="postlist"><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-04-30-segmentview/">摆脱第三方库系列（三）- 自己写顶部滚动标签栏</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.2k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">8分</span></span></div></header><div class="post-body"><div class="post-excerpt">
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">cbsfly</div><div class="header-banner-info__subtitle">寒来暑往 秋收冬藏</div></div><div class="header-banner-arrow"><div class="header-banner-arrow__icon"><i class="fas fa-angle-down"></i></div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content content-home" id="content"><section class="postlist"><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-04-30-segmentview/">摆脱第三方库系列（三）- 自己写顶部滚动标签栏</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.2k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">8分</span></span></div></header><div class="post-body"><div class="post-excerpt">
         <h1 id="前言"   >
           <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
       <p><em>好久没写博客了，最近自己参考了一些源码写了一个标签页，并把他传到了CocoaPods上。大家可以集成到项目中进行使用，也可以看看源码自己写一个更好的，也希望如果有什么意见可以告诉我，我会进行完善。</em></p>
@@ -107,51 +107,6 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></he
 </code></pre>
 <p>backView就是下面ViewController存放的ScrollView，当backView滚动时，我们需要改变标签栏headerSelectedSuperView的frame和headerSelectedView的contentOffset，这样的结果就是headerSelectedSuperView能移动到合适的位置，并且展示出headerSelectedSuperView子视图也就是headerSelectedView合适的部分。这样就能有gif中标签栏的那种滚动效果了。这里就和<code>        _headerSelectedView.clipsToBounds = YES;</code>息息相关了。代码很简单。</p>
 <p>至于其他部分我就不一一解析了，还是推荐大家看看源码，也希望有什么意见可以告诉我，互相提高互相进步。</p>
-</div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-01-20-git-date/">Git问题Everything up-to-date解决</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">591</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">3分</span></span></div></header><div class="post-body"><div class="post-excerpt"><p>今天push代码的时候遇到了一个小问题，提示『Everything up-to-date』<br>，导致不能push代码，说这里解决了记下小记。</p>
-
-        <h1 id="提交代码遇到『Everything-up-to-date』"   >
-          <a href="#提交代码遇到『Everything-up-to-date』" class="heading-link"><i class="fas fa-link"></i></a><a href="#提交代码遇到『Everything-up-to-date』" class="headerlink" title="提交代码遇到『Everything up-to-date』"></a>提交代码遇到『Everything up-to-date』</h1>
-      <p>上网查了下，发现中文大多答非所问，少数能解决的并没有阐述原理，所以我写这篇文章记录下。</p>
-<p>这里先上<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://stackoverflow.com/questions/2936652/git-push-wont-do-anything-everything-up-to-date" >stackoverflow</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>的回答，基础好的可以看这个。</p>
-<p>接下来说我自己的理解，出现这个问题的原因是git提交改动到缓存，要push的时候不会将本地所有的分支都push掉，所以出现这个问题。我们应该告诉git提交哪个分支。</p>
-<p>这里有种特殊的情况是如果你是fork别人的仓库再clone到本地的话，即使git上只有一个主分支，他还是可能出现这个错误。那么我们就需要新建分支提交改动然后合并分支。</p>
-<p>接下来先创建一个新分支提交改动</p>
-<pre><code>$ git branch newbranch
-</code></pre>
-<p>然后输入这条命令检查是否创建成功</p>
-<pre><code>$ git branch
-</code></pre>
-<p>这时终端输出</p>
-<pre><code>  newbranch
-* master
-</code></pre>
-<p>这样就创建成功了，前面的*代表的是当前你所在的工作分支。我们接下来就要切换工作分支。</p>
-<pre><code>$ git checkout newbranch
-</code></pre>
-<p>这样就切换完了，可以<code>$ git branch</code>确认下。然后你要将你的改动提交到新的分支上。</p>
-<pre><code>$ git add .
-$ git commit -a
-</code></pre>
-<p>此时可以<code>$ git status</code>检查下提交情况。如果提交成功，我们接下来就要回主分支了，代码和之前一样。</p>
-<pre><code>$ git checkout master
-</code></pre>
-<p>然后我们要将新分支提交的改动合并到主分支上</p>
-<pre><code>$ git merge newbranch
-</code></pre>
-<p>合并分支可能产生冲突这是正常的，虽然我们这是新建的分支不会产生冲突，但还是在这里记录下。下面的代码可以查看产生冲突的文件，然后做对应的修改再提交一次就可以了。</p>
-<pre><code>$ git diff
-</code></pre>
-<p>我们的问题就解决了，接下来就可以push代码了。</p>
-<pre><code>$ git push -u origin master
-</code></pre>
-<p>新建分支的朋友别忘了删除这个分支</p>
-<pre><code>$ git branch -D newbranch
-</code></pre>
-<p>如果想保留分支只是想删除已经合并的部分只要把大写的D改成小写的d就行了。</p>
-
-        <h1 id="参考资料"   >
-          <a href="#参考资料" class="heading-link"><i class="fas fa-link"></i></a><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1>
-      <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://gitbook.liuhui998.com/3_3.html" >分支与合并@基础</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
 </div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-01-15-network/">用AFNetworking3.0封装网络请求</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">2.1k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">13分</span></span></div></header><div class="post-body"><div class="post-excerpt">
         <h1 id="前言"   >
           <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
@@ -302,6 +257,51 @@ switch (method) &#123;
 <p>这样简单的网络请求就封装好了，当然还可以更加完善可以再加一层专门写model解析数据这样你的ViewController代码会更简洁。</p>
 <p>这篇文章写的代码我会传到我的github上，有需要的可以<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/cbsfly/cbsNetWork" >点开来</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>下载看。</p>
 <p>学艺不精，有错误的地方还请指出，我将万分感谢。</p>
+</div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-01-20-git-date/">Git问题Everything up-to-date解决</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">591</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">3分</span></span></div></header><div class="post-body"><div class="post-excerpt"><p>今天push代码的时候遇到了一个小问题，提示『Everything up-to-date』<br>，导致不能push代码，说这里解决了记下小记。</p>
+
+        <h1 id="提交代码遇到『Everything-up-to-date』"   >
+          <a href="#提交代码遇到『Everything-up-to-date』" class="heading-link"><i class="fas fa-link"></i></a><a href="#提交代码遇到『Everything-up-to-date』" class="headerlink" title="提交代码遇到『Everything up-to-date』"></a>提交代码遇到『Everything up-to-date』</h1>
+      <p>上网查了下，发现中文大多答非所问，少数能解决的并没有阐述原理，所以我写这篇文章记录下。</p>
+<p>这里先上<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://stackoverflow.com/questions/2936652/git-push-wont-do-anything-everything-up-to-date" >stackoverflow</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>的回答，基础好的可以看这个。</p>
+<p>接下来说我自己的理解，出现这个问题的原因是git提交改动到缓存，要push的时候不会将本地所有的分支都push掉，所以出现这个问题。我们应该告诉git提交哪个分支。</p>
+<p>这里有种特殊的情况是如果你是fork别人的仓库再clone到本地的话，即使git上只有一个主分支，他还是可能出现这个错误。那么我们就需要新建分支提交改动然后合并分支。</p>
+<p>接下来先创建一个新分支提交改动</p>
+<pre><code>$ git branch newbranch
+</code></pre>
+<p>然后输入这条命令检查是否创建成功</p>
+<pre><code>$ git branch
+</code></pre>
+<p>这时终端输出</p>
+<pre><code>  newbranch
+* master
+</code></pre>
+<p>这样就创建成功了，前面的*代表的是当前你所在的工作分支。我们接下来就要切换工作分支。</p>
+<pre><code>$ git checkout newbranch
+</code></pre>
+<p>这样就切换完了，可以<code>$ git branch</code>确认下。然后你要将你的改动提交到新的分支上。</p>
+<pre><code>$ git add .
+$ git commit -a
+</code></pre>
+<p>此时可以<code>$ git status</code>检查下提交情况。如果提交成功，我们接下来就要回主分支了，代码和之前一样。</p>
+<pre><code>$ git checkout master
+</code></pre>
+<p>然后我们要将新分支提交的改动合并到主分支上</p>
+<pre><code>$ git merge newbranch
+</code></pre>
+<p>合并分支可能产生冲突这是正常的，虽然我们这是新建的分支不会产生冲突，但还是在这里记录下。下面的代码可以查看产生冲突的文件，然后做对应的修改再提交一次就可以了。</p>
+<pre><code>$ git diff
+</code></pre>
+<p>我们的问题就解决了，接下来就可以push代码了。</p>
+<pre><code>$ git push -u origin master
+</code></pre>
+<p>新建分支的朋友别忘了删除这个分支</p>
+<pre><code>$ git branch -D newbranch
+</code></pre>
+<p>如果想保留分支只是想删除已经合并的部分只要把大写的D改成小写的d就行了。</p>
+
+        <h1 id="参考资料"   >
+          <a href="#参考资料" class="heading-link"><i class="fas fa-link"></i></a><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1>
+      <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://gitbook.liuhui998.com/3_3.html" >分支与合并@基础</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
 </div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-01-21-rac-refresh/">利用RAC一句话实现上拉刷新下拉刷新</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.1k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">7分</span></span></div></header><div class="post-body"><div class="post-excerpt"><p>最近在研究上拉刷新下拉刷新，有点小心得和大家分享下。</p>
 <p>首先我是先在网上搜博客看，发现要不就是用原生UIRefreshControl要不就是第三方库的教程，这都不是我想要的（好的开源库推荐<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/CoderMJLee/MJRefresh" >MJRefresh</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>）。</p>
 <p>于是我开始看大神们的源代码，了解了下原理。</p>
@@ -359,6 +359,150 @@ if ([scrollView isEqual:_tableView]) &#123;
 </code></pre>
 <p>这里是用了RAC KVO的写法，不会的可以点<a href="http://cbsfly.github.io/ios/rac1/">我文章</a>复习下。首先写了一个通知监听tableView的contentOffset，如果发生变化立刻进入map产生的映射中执行map中的方法。我给情况分了类，如果用户下拉，返回1，如果上拉快到底部时返回2。并且在映射完成后用了<code>distinctUntilChanged</code>属性，当我的映射值不产生变化时是不会传递映射值的。这样当用户拉倒需要刷新的位置，只会发一个信号给订阅者，只会执行一次刷新数据的方法，这样我所有的需求就迎刃而解了。</p>
 <p>如果有更好的办法希望大家给我指出，谢谢大家。</p>
+</div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-02-23-slipview/">摆脱第三方库系列（一）- 自己写一个侧拉菜单</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.4k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">9分</span></span></div></header><div class="post-body"><div class="post-excerpt">
+        <h1 id="前言"   >
+          <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
+      <p>一直有这么一个想法，就是摆脱第三方库来开发程序，虽然很不现实，但想尝试做一点努力。这篇文章先实现比较常见的侧拉菜单功能。</p>
+
+        <h1 id="侧拉菜单基本结构"   >
+          <a href="#侧拉菜单基本结构" class="heading-link"><i class="fas fa-link"></i></a><a href="#侧拉菜单基本结构" class="headerlink" title="侧拉菜单基本结构"></a>侧拉菜单基本结构</h1>
+      <p>一般侧拉菜单就是一个中心页和一个侧边页构成。通过添加手势移动中心页，展示出侧边页。</p>
+<p>现在APP中常见的侧拉菜单大体可以分成两种类型的，一种是外国的APP（比如Steam，facebook）比较喜欢的分页式的侧拉菜单，就是用中心页覆盖住侧边页，然后移动中心页的时候就能展现出被中心页覆盖的侧边页；还有一种就是国内（比如知乎日报）比较喜欢的一体式侧拉菜单，侧边页放置在中心页的左边或者右边，拉动时就可展现另一页内容。下面两张图第一张是分页式，第二张是一体式。</p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/celapage.gif" alt="wait"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/celatogether.gif" alt="wait"></p>
+
+        <h1 id="实现侧拉菜单"   >
+          <a href="#实现侧拉菜单" class="heading-link"><i class="fas fa-link"></i></a><a href="#实现侧拉菜单" class="headerlink" title="实现侧拉菜单"></a>实现侧拉菜单</h1>
+      <p>这篇文章将主要介绍一体式侧拉菜单的写法。</p>
+<p>先创建一个侧边页TogetherLeftView，最简单的继承于UIView的普通页面就行。在里面重写了初始化方法，改个颜色便于区分。</p>
+<pre><code>- (instancetype)initWithFrame:(CGRect)frame
+&#123;
+    self = [super initWithFrame:frame];
+       if (self) &#123;
+        self.backgroundColor = [UIColor redColor];
+    &#125;
+    return self;
+&#125;
+</code></pre>
+<p>然后就是中心页TogetherMainView，一般将手势写在这一页。先声明两个对象两个变量。还有宏定义侧边页的宽度</p>
+<pre><code>#define LEFTVIEWWIDTH 280
+
+@interface TogetherMainView : UIView
+@property (nonatomic, assign) float centerX;
+@property (nonatomic, assign) float centerY;
+@property (nonatomic, strong) UIPanGestureRecognizer *panGestureRecognizer;
+@property (nonatomic, strong) UIButton *leftBtn;
+</code></pre>
+<p>其中UIPanGestureRecognizer是苹果公司给的基本手势抽象类中的拖动手势，View添加这个后就可以拖动了。想学习其他基本手势的可以看看苹果UIGestureRecognizer的文档，这里不做介绍。leftBtn是点击后可以隐藏（出现）菜单的按钮。</p>
+<p>然后重写初始化方法。</p>
+<pre><code>- (instancetype)initWithFrame:(CGRect)frame
+&#123;
+    self = [super initWithFrame:frame];
+    if (self) &#123;
+        CGRect screen = [[UIScreen mainScreen] bounds];
+        self.centerX = screen.size.width / 2;
+        self.centerY = screen.size.height / 2;
+    
+        self.backgroundColor = [UIColor greenColor];
+    
+        [self addSubview:self.leftBtn];
+        [self addGestureRecognizer:self.panGestureRecognizer];
+    &#125;
+    return self;
+&#125;
+</code></pre>
+<p>这里的centerX和centerY是对屏幕初始中心位置的记录，我们一会还原位置要用到。然后先看手势部分，panGestureRecognizer的get方法如下</p>
+<pre><code>- (UIPanGestureRecognizer *)panGestureRecognizer
+&#123;
+    if (_panGestureRecognizer == nil) &#123;
+        _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    &#125;
+    return _panGestureRecognizer;
+&#125;
+</code></pre>
+<p>这里给拖动时添加了一个方法handlePan，关键点就在这个方法里</p>
+<pre><code>- (void)handlePan:(UIPanGestureRecognizer *)recognizer
+&#123;
+    CGPoint translation = [recognizer     translationInView:self];
+    float x = self.center.x + translation.x;
+    
+    if (x &lt; _centerX) &#123;
+        x = _centerX;
+    &#125;
+    self.center = CGPointMake(x, _centerY);
+    
+    if (recognizer.state == UIGestureRecognizerStateEnded) &#123;
+        [UIView animateWithDuration:0.2 animations:^(void)&#123;
+            if (x &gt; (self.centerX + LEFTVIEWWIDTH/2)) &#123;
+                self.center = CGPointMake(self.centerX + LEFTVIEWWIDTH, _centerY);
+            &#125;else&#123;
+                self.center = CGPointMake(_centerX, _centerY);
+            &#125;
+        &#125;];
+    &#125;
+    [recognizer setTranslation:CGPointZero inView:self];
+&#125;
+</code></pre>
+<p>当我们在View界面中拖动时就会进入这个方法，我们先设一个CGPoint来获取每次得到的移动距离translation，然后<code>float x</code>就表示当前屏幕中心点的位置（原来的位置加上移动量）。</p>
+<p>由于我写的是一个左侧的菜单，所以中心页应该是不能左移的，假如我们左移，就会造成<code>x &lt; _centerX</code>，那样的话旧把x设成原来的中心点centerX就行了，这样就能阻止中心页左移。（如果想阻止右移把小于改成大于就行了。</p>
+<p>然后就是在拖动效果结束（松开鼠标）时做一个判定，这里为了看起来平滑一点用了一个动画效果，如果拖动距离超过侧边页的一半旧显示出侧边页，否则还原。</p>
+<p>最后还要将recognizer置位零。因为拖动时会多次执行这个方法，如果不置零可能出错。</p>
+<p>这样最关键的部分就讲解完了，然后上按钮的动作代码，应该可以看的懂。</p>
+<pre><code>- (UIButton *)leftBtn
+&#123;
+    if (_leftBtn == nil) &#123;
+        _leftBtn = [[UIButton alloc] initWithFrame:CGRectMake(20, 20, 120, 40)];
+        [_leftBtn setTitle:@&quot;点我弹出菜单&quot; forState:UIControlStateNormal];
+        [_leftBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [_leftBtn addTarget:self action:@selector(leftViewAppear) forControlEvents:UIControlEventTouchUpInside];
+    &#125;
+    return _leftBtn;
+&#125;
+
+- (void)leftViewAppear
+&#123;
+    [UIView animateWithDuration:0.2 animations:^(void)&#123;
+        if (self.center.x == self.centerX) &#123;
+            self.center = CGPointMake(self.centerX + LEFTVIEWWIDTH, self.centerY);
+        &#125;else if (self.center.x == self.centerX + LEFTVIEWWIDTH) &#123;
+            self.center = CGPointMake(self.centerX, self.centerY);
+        &#125;
+    &#125;];
+
+&#125;
+</code></pre>
+<p>接下来就是添加到ViewController里面了，两个页面对象都要声明</p>
+<pre><code>@property (nonatomic, strong) TogetherLeftView *leftView;
+@property (nonatomic, strong) TogetherMainView *mainView;
+</code></pre>
+<p>这里上一下代码，不做过多解释</p>
+<pre><code>- (void)viewDidLoad &#123;
+    [super viewDidLoad];
+    [self.view addSubview:self.mainView];
+    [self.mainView addSubview:self.leftView];
+&#125;
+
+- (TogetherMainView *)mainView
+&#123;
+    if (_mainView == nil) &#123;
+        _mainView = [[TogetherMainView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    &#125;
+    return _mainView;
+&#125;
+
+- (TogetherLeftView *)leftView
+&#123;
+    if (_leftView == nil) &#123;
+        _leftView = [[TogetherLeftView alloc] initWithFrame:CGRectMake(-LEFTVIEWWIDTH, 0, LEFTVIEWWIDTH, [UIScreen mainScreen].bounds.size.height)];
+    &#125;
+    return _leftView;
+&#125;
+</code></pre>
+<p>那么如何写一个分页式的侧拉菜单呢？其实主要的区别就是在ViewController中添加页面的时候用中心页将侧边页覆盖就行了，具体的代码可以去我的<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/cbsfly/cbsSlipView" >github</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>下载来看。</p>
+
+        <h1 id="总结"   >
+          <a href="#总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#总结" class="headerlink" title="总结"></a>总结</h1>
+      <p>我想将比较常用的功能都自己动手写一遍这样更能明白底层的原理，我觉得更适合新手的学习，直接用第三方库谁都会，但哪天有需求变动要求你改你却无从下手就很尴尬了。这个系列我也会坚持下去，同样如果笔者哪里有错的地方希望大家提出来我好改正。    </p>
 </div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-02-24-rollview/">摆脱第三方库系列（二）- 自己写一个滚动广告</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.8k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">12分</span></span></div></header><div class="post-body"><div class="post-excerpt">
         <h1 id="前言"   >
           <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
@@ -544,150 +688,6 @@ if ([scrollView isEqual:_tableView]) &#123;
         <h1 id="相关文章"   >
           <a href="#相关文章" class="heading-link"><i class="fas fa-link"></i></a><a href="#相关文章" class="headerlink" title="相关文章"></a>相关文章</h1>
       <p><a href="http://cbsfly.github.io/ios/slipview">摆脱第三方库系列（一）-自己写一个侧拉菜单</a></p>
-</div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-02-23-slipview/">摆脱第三方库系列（一）- 自己写一个侧拉菜单</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.4k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">9分</span></span></div></header><div class="post-body"><div class="post-excerpt">
-        <h1 id="前言"   >
-          <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
-      <p>一直有这么一个想法，就是摆脱第三方库来开发程序，虽然很不现实，但想尝试做一点努力。这篇文章先实现比较常见的侧拉菜单功能。</p>
-
-        <h1 id="侧拉菜单基本结构"   >
-          <a href="#侧拉菜单基本结构" class="heading-link"><i class="fas fa-link"></i></a><a href="#侧拉菜单基本结构" class="headerlink" title="侧拉菜单基本结构"></a>侧拉菜单基本结构</h1>
-      <p>一般侧拉菜单就是一个中心页和一个侧边页构成。通过添加手势移动中心页，展示出侧边页。</p>
-<p>现在APP中常见的侧拉菜单大体可以分成两种类型的，一种是外国的APP（比如Steam，facebook）比较喜欢的分页式的侧拉菜单，就是用中心页覆盖住侧边页，然后移动中心页的时候就能展现出被中心页覆盖的侧边页；还有一种就是国内（比如知乎日报）比较喜欢的一体式侧拉菜单，侧边页放置在中心页的左边或者右边，拉动时就可展现另一页内容。下面两张图第一张是分页式，第二张是一体式。</p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/celapage.gif" alt="wait"></p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/celatogether.gif" alt="wait"></p>
-
-        <h1 id="实现侧拉菜单"   >
-          <a href="#实现侧拉菜单" class="heading-link"><i class="fas fa-link"></i></a><a href="#实现侧拉菜单" class="headerlink" title="实现侧拉菜单"></a>实现侧拉菜单</h1>
-      <p>这篇文章将主要介绍一体式侧拉菜单的写法。</p>
-<p>先创建一个侧边页TogetherLeftView，最简单的继承于UIView的普通页面就行。在里面重写了初始化方法，改个颜色便于区分。</p>
-<pre><code>- (instancetype)initWithFrame:(CGRect)frame
-&#123;
-    self = [super initWithFrame:frame];
-       if (self) &#123;
-        self.backgroundColor = [UIColor redColor];
-    &#125;
-    return self;
-&#125;
-</code></pre>
-<p>然后就是中心页TogetherMainView，一般将手势写在这一页。先声明两个对象两个变量。还有宏定义侧边页的宽度</p>
-<pre><code>#define LEFTVIEWWIDTH 280
-
-@interface TogetherMainView : UIView
-@property (nonatomic, assign) float centerX;
-@property (nonatomic, assign) float centerY;
-@property (nonatomic, strong) UIPanGestureRecognizer *panGestureRecognizer;
-@property (nonatomic, strong) UIButton *leftBtn;
-</code></pre>
-<p>其中UIPanGestureRecognizer是苹果公司给的基本手势抽象类中的拖动手势，View添加这个后就可以拖动了。想学习其他基本手势的可以看看苹果UIGestureRecognizer的文档，这里不做介绍。leftBtn是点击后可以隐藏（出现）菜单的按钮。</p>
-<p>然后重写初始化方法。</p>
-<pre><code>- (instancetype)initWithFrame:(CGRect)frame
-&#123;
-    self = [super initWithFrame:frame];
-    if (self) &#123;
-        CGRect screen = [[UIScreen mainScreen] bounds];
-        self.centerX = screen.size.width / 2;
-        self.centerY = screen.size.height / 2;
-    
-        self.backgroundColor = [UIColor greenColor];
-    
-        [self addSubview:self.leftBtn];
-        [self addGestureRecognizer:self.panGestureRecognizer];
-    &#125;
-    return self;
-&#125;
-</code></pre>
-<p>这里的centerX和centerY是对屏幕初始中心位置的记录，我们一会还原位置要用到。然后先看手势部分，panGestureRecognizer的get方法如下</p>
-<pre><code>- (UIPanGestureRecognizer *)panGestureRecognizer
-&#123;
-    if (_panGestureRecognizer == nil) &#123;
-        _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
-    &#125;
-    return _panGestureRecognizer;
-&#125;
-</code></pre>
-<p>这里给拖动时添加了一个方法handlePan，关键点就在这个方法里</p>
-<pre><code>- (void)handlePan:(UIPanGestureRecognizer *)recognizer
-&#123;
-    CGPoint translation = [recognizer     translationInView:self];
-    float x = self.center.x + translation.x;
-    
-    if (x &lt; _centerX) &#123;
-        x = _centerX;
-    &#125;
-    self.center = CGPointMake(x, _centerY);
-    
-    if (recognizer.state == UIGestureRecognizerStateEnded) &#123;
-        [UIView animateWithDuration:0.2 animations:^(void)&#123;
-            if (x &gt; (self.centerX + LEFTVIEWWIDTH/2)) &#123;
-                self.center = CGPointMake(self.centerX + LEFTVIEWWIDTH, _centerY);
-            &#125;else&#123;
-                self.center = CGPointMake(_centerX, _centerY);
-            &#125;
-        &#125;];
-    &#125;
-    [recognizer setTranslation:CGPointZero inView:self];
-&#125;
-</code></pre>
-<p>当我们在View界面中拖动时就会进入这个方法，我们先设一个CGPoint来获取每次得到的移动距离translation，然后<code>float x</code>就表示当前屏幕中心点的位置（原来的位置加上移动量）。</p>
-<p>由于我写的是一个左侧的菜单，所以中心页应该是不能左移的，假如我们左移，就会造成<code>x &lt; _centerX</code>，那样的话旧把x设成原来的中心点centerX就行了，这样就能阻止中心页左移。（如果想阻止右移把小于改成大于就行了。</p>
-<p>然后就是在拖动效果结束（松开鼠标）时做一个判定，这里为了看起来平滑一点用了一个动画效果，如果拖动距离超过侧边页的一半旧显示出侧边页，否则还原。</p>
-<p>最后还要将recognizer置位零。因为拖动时会多次执行这个方法，如果不置零可能出错。</p>
-<p>这样最关键的部分就讲解完了，然后上按钮的动作代码，应该可以看的懂。</p>
-<pre><code>- (UIButton *)leftBtn
-&#123;
-    if (_leftBtn == nil) &#123;
-        _leftBtn = [[UIButton alloc] initWithFrame:CGRectMake(20, 20, 120, 40)];
-        [_leftBtn setTitle:@&quot;点我弹出菜单&quot; forState:UIControlStateNormal];
-        [_leftBtn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-        [_leftBtn addTarget:self action:@selector(leftViewAppear) forControlEvents:UIControlEventTouchUpInside];
-    &#125;
-    return _leftBtn;
-&#125;
-
-- (void)leftViewAppear
-&#123;
-    [UIView animateWithDuration:0.2 animations:^(void)&#123;
-        if (self.center.x == self.centerX) &#123;
-            self.center = CGPointMake(self.centerX + LEFTVIEWWIDTH, self.centerY);
-        &#125;else if (self.center.x == self.centerX + LEFTVIEWWIDTH) &#123;
-            self.center = CGPointMake(self.centerX, self.centerY);
-        &#125;
-    &#125;];
-
-&#125;
-</code></pre>
-<p>接下来就是添加到ViewController里面了，两个页面对象都要声明</p>
-<pre><code>@property (nonatomic, strong) TogetherLeftView *leftView;
-@property (nonatomic, strong) TogetherMainView *mainView;
-</code></pre>
-<p>这里上一下代码，不做过多解释</p>
-<pre><code>- (void)viewDidLoad &#123;
-    [super viewDidLoad];
-    [self.view addSubview:self.mainView];
-    [self.mainView addSubview:self.leftView];
-&#125;
-
-- (TogetherMainView *)mainView
-&#123;
-    if (_mainView == nil) &#123;
-        _mainView = [[TogetherMainView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
-    &#125;
-    return _mainView;
-&#125;
-
-- (TogetherLeftView *)leftView
-&#123;
-    if (_leftView == nil) &#123;
-        _leftView = [[TogetherLeftView alloc] initWithFrame:CGRectMake(-LEFTVIEWWIDTH, 0, LEFTVIEWWIDTH, [UIScreen mainScreen].bounds.size.height)];
-    &#125;
-    return _leftView;
-&#125;
-</code></pre>
-<p>那么如何写一个分页式的侧拉菜单呢？其实主要的区别就是在ViewController中添加页面的时候用中心页将侧边页覆盖就行了，具体的代码可以去我的<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/cbsfly/cbsSlipView" >github</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>下载来看。</p>
-
-        <h1 id="总结"   >
-          <a href="#总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#总结" class="headerlink" title="总结"></a>总结</h1>
-      <p>我想将比较常用的功能都自己动手写一遍这样更能明白底层的原理，我觉得更适合新手的学习，直接用第三方库谁都会，但哪天有需求变动要求你改你却无从下手就很尴尬了。这个系列我也会坚持下去，同样如果笔者哪里有错的地方希望大家提出来我好改正。    </p>
 </div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/03/05/2016-01-03-rac1/">学习RAC小记-适合给新手看的RAC用法总结</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.8k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">11分</span></span></div></header><div class="post-body"><div class="post-excerpt"><p><em>最近叶大直播写代码，我也做点小笔记。</em></p>
 <hr />
 
@@ -1115,7 +1115,7 @@ ppview.backgroundColor = [UIColor yellowColor];
           <a href="#参考文章" class="heading-link"><i class="fas fa-link"></i></a><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1>
       <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://fuckingblocksyntax.com/" >How Do I Declare A Block in Objective-C?</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
 <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://tech.meituan.com/block-in-Meituan-iOS.html" >block在美团iOS的实践</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
-</div></div></article></section><nav class="paginator"><div class="paginator-inner"><span class="page-number current">1</span></div></nav></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><section class="sidebar-toc hide"></section><!-- ov = overview--><section class="sidebar-ov"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icon/big.png" alt="avatar"></div><p class="sidebar-ov-author__text">cbsfly</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">9</div><div class="sidebar-ov-state-item__name">归档</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>cbsfly</span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.4.0</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.6.2</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">访问人数</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">浏览总量</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script>function initSearch() {
+</div></div></article></section><nav class="paginator"><div class="paginator-inner"><span class="page-number current">1</span></div></nav></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><section class="sidebar-toc hide"></section><!-- ov = overview--><section class="sidebar-ov"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icon/big.png" alt="avatar"></div><p class="sidebar-ov-author__text">cbsfly</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/cbsfly" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">9</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">0</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>cbsfly</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">访问人数</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">浏览总量</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script>function initSearch() {
   var isXML = true;
   var search_path = 'search.json';
 
@@ -1388,4 +1388,82 @@ if (Array.isArray(assistSearchList)) {
       extSearch(name);
     }, false);
   });
-}</script><script src="https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
+}</script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (true) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"><script src></script><script>function initQuicklink() {
+  quicklink({
+    timeout: '10000',
+    priority: true,
+    ignores: [uri => uri.includes('#'), uri => uri === 'http://cbsfly.github.io/', /\/api\/?/,uri => uri.includes('.xml'),uri => uri.includes('.zip'),(uri, el) => el.hasAttribute('nofollow'),(uri, el) => el.hasAttribute('noprefetch')]
+  });
+}
+
+if (true || false) {
+  initQuicklink();
+} else {
+  window.addEventListener('DOMContentLoaded', initQuicklink, false);
+}</script><script src="https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script></div><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
