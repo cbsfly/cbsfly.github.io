@@ -5,13 +5,13 @@
 <meta property="og:site_name" content="cbsfly">
 <meta property="og:description" content="前言       摆脱第三方库系列第二章，我将介绍滚动广告的写法。在一些信息聚合类APP中滚动广告非常常见或者说必不可少，他可以不需要用户操作展示一些开发者想展示的东西，原理其实也很简单。我写的滚动广告主要实现自动滚动和循环滚动这两个功能，至于广告的点击事件或者美化这都是后话了。                     滚动广告基本原理       其实只要">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/rollpage.gif">
+<meta property="og:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/rollpage.gif">
 <meta property="article:published_time" content="2021-03-05T03:08:27.226Z">
-<meta property="article:modified_time" content="2021-06-07T03:52:19.023Z">
+<meta property="article:modified_time" content="2021-06-07T07:43:22.597Z">
 <meta property="article:author" content="cbsfly">
 <meta property="article:tag" content="摆脱第三方库系列">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/rollpage.gif"><title>摆脱第三方库系列（二）- 自己写一个滚动广告 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-02-24-rollview/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+<meta name="twitter:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/rollpage.gif"><title>摆脱第三方库系列（二）- 自己写一个滚动广告 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-02-24-rollview/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
 var CONFIG = {
   root: '/',
   algolia: undefined,
@@ -52,7 +52,7 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></he
         <h1 id="代码实现"   >
           <a href="#代码实现" class="heading-link"><i class="fas fa-link"></i></a><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1>
       <p>先上完成效果图</p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/rollpage.gif" alt="wait"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/rollpage.gif" alt="wait"></p>
 <p>接下来上代码，先创建一个继承于UIView的子类RollView，这里不推荐直接继承于UISCrollView，那样可能会因为控件层次问题出现有些控件被覆盖了。</p>
 
         <h2 id="接口部分"   >

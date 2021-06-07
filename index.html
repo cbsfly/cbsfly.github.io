@@ -37,8 +37,8 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></he
         <h1 id="成果"   >
           <a href="#成果" class="heading-link"><i class="fas fa-link"></i></a><a href="#成果" class="headerlink" title="成果"></a>成果</h1>
       <p>自己写了两种形式的Demo，一种类似网易云音乐的固定的标签栏，一种是类似爱奇艺、今日头条的可滚动的标签栏。一开始只是草草的写，后来经过师傅提醒考虑了下优化，只有移动到那个页面才会对ViewController进行加载，这样即使是很复杂的页面很多网络请求数据加载应该也不会有卡顿的现象。</p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/segment1.gif" alt="wait"></p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/segment2.gif" alt="wait"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/segment1.gif" alt="wait"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/segment2.gif" alt="wait"></p>
 <p>如果有想加入项目中使用的同学可以利用CocoaPods，具体使用我放在<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/cbsfly/CBSSegmentView" >github</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>上了，欢迎使用。也可以把github上的zip直接下载下来看使用方法。接下来简单介绍下实现原理。</p>
 
         <h1 id="实现原理"   >
@@ -313,7 +313,7 @@ switch (method) &#123;
 </code></pre>
 <p>这个方法是在你的scrollView滚动时就会执行的方法。</p>
 <p>这里有必要说明下scrollView的两个属性，一个是contentSize，一个是contentOffset。这里上图片讲解可能直观一点。</p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/scrollview.png" alt="挂了？！"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/scrollview.png" alt="挂了？！"></p>
 <p><em>PS：不会用mac的画图工具比较丑见谅。</em></p>
 <p>看图，这里的绿色框就是我们的手机屏幕，我们的UI都是呈现在手机屏幕上的，那么黑色的框就是contentSize。就是说，虽然手机屏幕只有一点大，但是我们的scrollView并不是只有一点大的，这个属性是可以设置的，而我们滚动scrollView其实就是滚动黑色框，这样看到的界面就会不一样了。而图上标注的红点就是contentOffset。contentOffset是一个CGPoint，代表当前屏幕所在位置左上角相对于scrollView.contentSize左上角的横纵坐标值。</p>
 <p>了解了scrollView我们就来说刷新。在<br><code>- (void)scrollViewDidScroll:(UIScrollView *)scrollView;// any offset changes</code>方法中我们应该监听contentOffset的值，如果他的纵坐标到某个点以上我们就执行刷新数据，移动到某个点以下我们就执行加载数据。具体看代码可能更好理解。</p>
@@ -376,7 +376,7 @@ if ([scrollView isEqual:_tableView]) &#123;
         <h1 id="代码实现"   >
           <a href="#代码实现" class="heading-link"><i class="fas fa-link"></i></a><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1>
       <p>先上完成效果图</p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/rollpage.gif" alt="wait"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/rollpage.gif" alt="wait"></p>
 <p>接下来上代码，先创建一个继承于UIView的子类RollView，这里不推荐直接继承于UISCrollView，那样可能会因为控件层次问题出现有些控件被覆盖了。</p>
 
         <h2 id="接口部分"   >
@@ -553,8 +553,8 @@ if ([scrollView isEqual:_tableView]) &#123;
           <a href="#侧拉菜单基本结构" class="heading-link"><i class="fas fa-link"></i></a><a href="#侧拉菜单基本结构" class="headerlink" title="侧拉菜单基本结构"></a>侧拉菜单基本结构</h1>
       <p>一般侧拉菜单就是一个中心页和一个侧边页构成。通过添加手势移动中心页，展示出侧边页。</p>
 <p>现在APP中常见的侧拉菜单大体可以分成两种类型的，一种是外国的APP（比如Steam，facebook）比较喜欢的分页式的侧拉菜单，就是用中心页覆盖住侧边页，然后移动中心页的时候就能展现出被中心页覆盖的侧边页；还有一种就是国内（比如知乎日报）比较喜欢的一体式侧拉菜单，侧边页放置在中心页的左边或者右边，拉动时就可展现另一页内容。下面两张图第一张是分页式，第二张是一体式。</p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/celapage.gif" alt="wait"></p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/celatogether.gif" alt="wait"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/celapage.gif" alt="wait"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/celatogether.gif" alt="wait"></p>
 
         <h1 id="实现侧拉菜单"   >
           <a href="#实现侧拉菜单" class="heading-link"><i class="fas fa-link"></i></a><a href="#实现侧拉菜单" class="headerlink" title="实现侧拉菜单"></a>实现侧拉菜单</h1>

@@ -5,13 +5,13 @@
 <meta property="og:site_name" content="cbsfly">
 <meta property="og:description" content="最近在研究上拉刷新下拉刷新，有点小心得和大家分享下。 首先我是先在网上搜博客看，发现要不就是用原生UIRefreshControl要不就是第三方库的教程，这都不是我想要的（好的开源库推荐MJRefresh）。 于是我开始看大神们的源代码，了解了下原理。                     刷新原理       首先上拉下拉刷新肯定是基于UIScrollView的基础上的，包括UITableVi">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/scrollview.png">
+<meta property="og:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/scrollview.png">
 <meta property="article:published_time" content="2021-03-05T03:08:27.226Z">
-<meta property="article:modified_time" content="2021-06-07T03:51:44.291Z">
+<meta property="article:modified_time" content="2021-06-07T07:43:47.324Z">
 <meta property="article:author" content="cbsfly">
 <meta property="article:tag" content="云计算,Kubernetes,golang">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/scrollview.png"><title>利用RAC一句话实现上拉刷新下拉刷新 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+<meta name="twitter:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/scrollview.png"><title>利用RAC一句话实现上拉刷新下拉刷新 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
 var CONFIG = {
   root: '/',
   algolia: undefined,
@@ -46,7 +46,7 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></he
 </code></pre>
 <p>这个方法是在你的scrollView滚动时就会执行的方法。</p>
 <p>这里有必要说明下scrollView的两个属性，一个是contentSize，一个是contentOffset。这里上图片讲解可能直观一点。</p>
-<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/scrollview.png" alt="挂了？！"></p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/scrollview.png" alt="挂了？！"></p>
 <p><em>PS：不会用mac的画图工具比较丑见谅。</em></p>
 <p>看图，这里的绿色框就是我们的手机屏幕，我们的UI都是呈现在手机屏幕上的，那么黑色的框就是contentSize。就是说，虽然手机屏幕只有一点大，但是我们的scrollView并不是只有一点大的，这个属性是可以设置的，而我们滚动scrollView其实就是滚动黑色框，这样看到的界面就会不一样了。而图上标注的红点就是contentOffset。contentOffset是一个CGPoint，代表当前屏幕所在位置左上角相对于scrollView.contentSize左上角的横纵坐标值。</p>
 <p>了解了scrollView我们就来说刷新。在<br><code>- (void)scrollViewDidScroll:(UIScrollView *)scrollView;// any offset changes</code>方法中我们应该监听contentOffset的值，如果他的纵坐标到某个点以上我们就执行刷新数据，移动到某个点以下我们就执行加载数据。具体看代码可能更好理解。</p>
