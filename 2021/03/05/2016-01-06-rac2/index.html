@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icon/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icon/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/images/icon/apple-touch-icon.png?v=2.6.2" sizes="180x180"><link rel="mask-icon" href="/images/icon/stun-logo.svg?v=2.6.2" color="#54bcff"><meta name="msapplication-TileImage" content="/images/icon/favicon-144x144.png"><meta name="msapplication-TileColor" content="#000000"><meta name="google-site-verification" content="TshY9NMaKRo9Dxk7EpnJLUzDhRXgchJgOGOtb2thjP0"><meta name="baidu-site-verification" content="code-svGRIKvFxb"><meta name="description" content="继续完成RAC的坑                       前言       经过上篇文章的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用add target语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。                     什么是信号       RAC的核心就是信号，即RACSignal。  信号可以看做是传递信号的工具，当数">
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icon/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icon/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/images/icon/apple-touch-icon.png?v=2.6.2" sizes="180x180"><link rel="mask-icon" href="/images/icon/stun-logo.svg?v=2.6.2" color="#54bcff"><meta name="msapplication-TileImage" content="/images/icon/favicon-144x144.png"><meta name="msapplication-TileColor" content="#000000"><meta name="google-site-verification" content="TshY9NMaKRo9Dxk7EpnJLUzDhRXgchJgOGOtb2thjP0"><meta name="baidu-site-verification" content="code-svGRIKvFxb"><meta name="description" content="继续完成RAC的坑                       前言       经过上篇文章的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用add target语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="探究RAC-RAC信号处理方法归纳">
 <meta property="og:url" content="http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/index.html">
 <meta property="og:site_name" content="cbsfly">
-<meta property="og:description" content="继续完成RAC的坑                       前言       经过上篇文章的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用add target语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。                     什么是信号       RAC的核心就是信号，即RACSignal。  信号可以看做是传递信号的工具，当数">
+<meta property="og:description" content="继续完成RAC的坑                       前言       经过上篇文章的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用add target语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-03-05T03:08:27.225Z">
-<meta property="article:modified_time" content="2021-06-07T03:51:31.390Z">
+<meta property="article:modified_time" content="2021-06-07T10:22:17.281Z">
 <meta property="article:author" content="cbsfly">
 <meta property="article:tag" content="云计算,Kubernetes,golang">
 <meta name="twitter:card" content="summary"><title>探究RAC-RAC信号处理方法归纳 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async="" data-pjax=""></script><script>var Stun = window.Stun || {};
@@ -40,6 +40,8 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></he
         <h1 id="前言"   >
           <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
       <p>经过<a href="http://cbsfly.github.io/ios/rac1/">上篇文章</a>的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用<code>add target</code>语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。</p>
+<span id="more"></span>
+
 
         <h1 id="什么是信号"   >
           <a href="#什么是信号" class="heading-link"><i class="fas fa-link"></i></a><a href="#什么是信号" class="headerlink" title="什么是信号"></a>什么是信号</h1>

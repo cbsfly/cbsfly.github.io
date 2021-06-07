@@ -6,7 +6,7 @@
 <meta property="og:description" content="最近叶大直播写代码，我也做点小笔记。                       什么是RAC？       几乎每一篇介绍RAC的文章开头都是这么一个问题。我这篇文章是写给新手（包括我自己）看的，所以这个问题更是无法忽视。 简单的说，RAC就是一个第三方库，他可以大大简化你的代码过程。 官方的说，ReactiveCocoa（其简称为RAC）是由GitHub开源的一个应用于iOS和OS X开发的新">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-03-05T03:08:27.225Z">
-<meta property="article:modified_time" content="2021-06-07T03:51:35.996Z">
+<meta property="article:modified_time" content="2021-06-07T10:21:10.513Z">
 <meta property="article:author" content="cbsfly">
 <meta property="article:tag" content="云计算,Kubernetes,golang">
 <meta name="twitter:card" content="summary"><title>学习RAC小记-适合给新手看的RAC用法总结 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-01-03-rac1/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async="" data-pjax=""></script><script>var Stun = window.Stun || {};
@@ -42,6 +42,8 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></he
       <p>几乎每一篇介绍RAC的文章开头都是这么一个问题。我这篇文章是写给新手（包括我自己）看的，所以这个问题更是无法忽视。</p>
 <p>简单的说，RAC就是一个第三方库，他可以大大简化你的代码过程。</p>
 <p>官方的说，<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/ReactiveCocoa/ReactiveCocoa" >ReactiveCocoa</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>（其简称为RAC）是由GitHub开源的一个应用于iOS和OS X开发的新框架。RAC具有<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%87%BD%E6%95%B8%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80" >函数式编程</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>和<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%93%8D%E5%BA%94%E5%BC%8F%E7%BC%96%E7%A8%8B" >响应式编程</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>的特性。</p>
+<span id="more"></span>
+
 
         <h1 id="为什么我们要学习RAC？"   >
           <a href="#为什么我们要学习RAC？" class="heading-link"><i class="fas fa-link"></i></a><a href="#为什么我们要学习RAC？" class="headerlink" title="为什么我们要学习RAC？"></a>为什么我们要学习RAC？</h1>

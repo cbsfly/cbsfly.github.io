@@ -2,14 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://cbsfly.github.io/tags/index.html</loc>
-    
-    <lastmod>2021-06-07</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://cbsfly.github.io/categories/index.html</loc>
+    <loc>http://cbsfly.github.io/2021/03/05/2016-04-30-segmentview/</loc>
     
     <lastmod>2021-06-07</lastmod>
     
@@ -23,13 +16,6 @@
   </url>
   
   <url>
-    <loc>http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/</loc>
-    
-    <lastmod>2021-06-07</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://cbsfly.github.io/2021/03/05/2016-02-23-slipview/</loc>
     
     <lastmod>2021-06-07</lastmod>
@@ -37,28 +23,14 @@
   </url>
   
   <url>
-    <loc>http://cbsfly.github.io/2021/03/05/2016-04-30-segmentview/</loc>
+    <loc>http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/</loc>
     
     <lastmod>2021-06-07</lastmod>
     
   </url>
   
   <url>
-    <loc>http://cbsfly.github.io/2021/03/05/2016-01-03-rac1/</loc>
-    
-    <lastmod>2021-06-07</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/</loc>
-    
-    <lastmod>2021-06-07</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://cbsfly.github.io/2021/03/05/2016-01-10-block/</loc>
+    <loc>http://cbsfly.github.io/2021/03/05/2016-01-20-git-date/</loc>
     
     <lastmod>2021-06-07</lastmod>
     
@@ -72,7 +44,35 @@
   </url>
   
   <url>
-    <loc>http://cbsfly.github.io/2021/03/05/2016-01-20-git-date/</loc>
+    <loc>http://cbsfly.github.io/2021/03/05/2016-01-10-block/</loc>
+    
+    <lastmod>2021-06-07</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/</loc>
+    
+    <lastmod>2021-06-07</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/2021/03/05/2016-01-03-rac1/</loc>
+    
+    <lastmod>2021-06-07</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/tags/index.html</loc>
+    
+    <lastmod>2021-06-07</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/categories/index.html</loc>
     
     <lastmod>2021-06-07</lastmod>
     
