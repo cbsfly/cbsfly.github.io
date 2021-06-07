@@ -1,0 +1,370 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icon/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icon/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/images/icon/apple-touch-icon.png?v=2.6.2" sizes="180x180"><link rel="mask-icon" href="/images/icon/stun-logo.svg?v=2.6.2" color="#54bcff"><meta name="msapplication-TileImage" content="/images/icon/favicon-144x144.png"><meta name="msapplication-TileColor" content="#000000"><meta name="description" content="最近在研究上拉刷新下拉刷新，有点小心得和大家分享下。 首先我是先在网上搜博客看，发现要不就是用原生UIRefreshControl要不就是第三方库的教程，这都不是我想要的（好的开源库推荐MJRefresh）。 于是我开始看大神们的源代码，了解了下原理。                     刷新原理       首先上拉下拉刷新肯定是基于UIScrollView的基础上的，包括UITableVi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用RAC一句话实现上拉刷新下拉刷新">
+<meta property="og:url" content="http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/index.html">
+<meta property="og:site_name" content="cbsfly">
+<meta property="og:description" content="最近在研究上拉刷新下拉刷新，有点小心得和大家分享下。 首先我是先在网上搜博客看，发现要不就是用原生UIRefreshControl要不就是第三方库的教程，这都不是我想要的（好的开源库推荐MJRefresh）。 于是我开始看大神们的源代码，了解了下原理。                     刷新原理       首先上拉下拉刷新肯定是基于UIScrollView的基础上的，包括UITableVi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/scrollview.png">
+<meta property="article:published_time" content="2021-03-05T03:08:27.226Z">
+<meta property="article:modified_time" content="2021-06-07T03:51:44.291Z">
+<meta property="article:author" content="cbsfly">
+<meta property="article:tag" content="云计算,Kubernetes,golang">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/scrollview.png"><title>利用RAC一句话实现上拉刷新下拉刷新 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":false,"scrollDownIcon":true},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">利用RAC一句话实现上拉刷新下拉刷新</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.1k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">7分</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">阅读次数</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><p>最近在研究上拉刷新下拉刷新，有点小心得和大家分享下。</p>
+<p>首先我是先在网上搜博客看，发现要不就是用原生UIRefreshControl要不就是第三方库的教程，这都不是我想要的（好的开源库推荐<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/CoderMJLee/MJRefresh" >MJRefresh</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>）。</p>
+<p>于是我开始看大神们的源代码，了解了下原理。</p>
+
+        <h1 id="刷新原理"   >
+          <a href="#刷新原理" class="heading-link"><i class="fas fa-link"></i></a><a href="#刷新原理" class="headerlink" title="刷新原理"></a>刷新原理</h1>
+      <p>首先上拉下拉刷新肯定是基于UIScrollView的基础上的，包括UITableView其实也是一个UIScrollView。而实现上拉下拉刷新的原理就是UIScrollView中的代理方法</p>
+<pre><code>- (void)scrollViewDidScroll:(UIScrollView *)scrollView;// any offset changes
+</code></pre>
+<p>这个方法是在你的scrollView滚动时就会执行的方法。</p>
+<p>这里有必要说明下scrollView的两个属性，一个是contentSize，一个是contentOffset。这里上图片讲解可能直观一点。</p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/gallery1/scrollview.png" alt="挂了？！"></p>
+<p><em>PS：不会用mac的画图工具比较丑见谅。</em></p>
+<p>看图，这里的绿色框就是我们的手机屏幕，我们的UI都是呈现在手机屏幕上的，那么黑色的框就是contentSize。就是说，虽然手机屏幕只有一点大，但是我们的scrollView并不是只有一点大的，这个属性是可以设置的，而我们滚动scrollView其实就是滚动黑色框，这样看到的界面就会不一样了。而图上标注的红点就是contentOffset。contentOffset是一个CGPoint，代表当前屏幕所在位置左上角相对于scrollView.contentSize左上角的横纵坐标值。</p>
+<p>了解了scrollView我们就来说刷新。在<br><code>- (void)scrollViewDidScroll:(UIScrollView *)scrollView;// any offset changes</code>方法中我们应该监听contentOffset的值，如果他的纵坐标到某个点以上我们就执行刷新数据，移动到某个点以下我们就执行加载数据。具体看代码可能更好理解。</p>
+<pre><code>- (void)scrollViewDidScroll:(UIScrollView *)scrollView 
+&#123;
+if ([scrollView isEqual:_tableView]) &#123;
+    if (scrollView.contentOffset.y &lt; -50 ) &#123;
+    //下拉刷新方法
+    &#125;
+    if (scrollView.contentOffset.y &gt; 800 ) &#123;
+    //上拉加载方法
+    &#125;
+  &#125;
+&#125;
+</code></pre>
+<p>原理很简单，但是实现的话还是有很多细节需要考虑的，比如<code>scrollView.contentOffset.y &lt; -50</code>的情况是很多的，当用户快速上拉到-100时，可能在-51执行一次刷新方法，在-52执行一次，-53执行一次。。。。。。这肯定是不合理的。</p>
+<p>所以我们需要节流。这里提两个我的个人观点，一个是开线程执行刷新办法，如果线程存在不会新开一个，这样可以保证刷新方法执行一次。还有一种是用KVO监听用户手指松开的动作，松开的时候再刷新，或者<code> - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate</code>用这个代理方法，他会帮你监听手指是否松开。这两个方法我都没试过，大家可以自己尝试下，有错希望反馈给我，共同进步。</p>
+<p>但是如果仅仅是判定松开我觉得是满足不了需求的。我现在希望就是当用户快下滑到底部时就自动加载新数据，那我应该怎么实现呢？总不能用户一拉到底不松手就不加载吧。</p>
+
+        <h1 id="RAC一个方法实现刷新"   >
+          <a href="#RAC一个方法实现刷新" class="heading-link"><i class="fas fa-link"></i></a><a href="#RAC一个方法实现刷新" class="headerlink" title="RAC一个方法实现刷新"></a>RAC一个方法实现刷新</h1>
+      <p>我想到了RAC。这个想法可能有点非主流，所以肯定有逻辑考虑不周的地方，希望各位指出。这里我先宏定义了下，为了缩短代码</p>
+<pre><code>#define VIEWHEIGHT self.view.frame.size.height
+</code></pre>
+<p>然后就是RAC了。</p>
+<pre><code>[[[RACObserve(self.tableView, contentOffset) map:^id(id value) &#123;
+    if (self.tableView.contentOffset.y &lt; -50) &#123;
+        return @&quot;1&quot;;
+    &#125;
+    if (self.tableView.contentOffset.y &gt; self.tableView.contentSize.height - VIEWHEIGHT * 1.5 &amp;&amp; self.tableView.contentSize.height - VIEWHEIGHT * 1.5 &gt; 0) &#123;
+        return @&quot;2&quot;;
+    &#125;else&#123;
+        return @&quot;0&quot;;
+    &#125;
+&#125;] distinctUntilChanged] subscribeNext:^(id x) &#123;
+    debugLog(@&quot;%@&quot;, x);
+    if ([x integerValue] == 1) &#123;
+        [self netWork];
+    &#125;else if ([x integerValue] == 2)&#123;
+        [self loadMoreData];
+    &#125;
+&#125;];
+</code></pre>
+<p>这里是用了RAC KVO的写法，不会的可以点<a href="http://cbsfly.github.io/ios/rac1/">我文章</a>复习下。首先写了一个通知监听tableView的contentOffset，如果发生变化立刻进入map产生的映射中执行map中的方法。我给情况分了类，如果用户下拉，返回1，如果上拉快到底部时返回2。并且在映射完成后用了<code>distinctUntilChanged</code>属性，当我的映射值不产生变化时是不会传递映射值的。这样当用户拉倒需要刷新的位置，只会发一个信号给订阅者，只会执行一次刷新数据的方法，这样我所有的需求就迎刃而解了。</p>
+<p>如果有更好的办法希望大家给我指出，谢谢大家。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://cbsfly.github.io">cbsfly</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/">http://cbsfly.github.io/2021/03/05/2016-01-21-rac-refresh/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2021/03/05/2016-01-15-network/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">用AFNetworking3.0封装网络请求</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2021/03/05/2016-02-24-rollview/"><span class="paginator-prev__text">摆脱第三方库系列（二）- 自己写一个滚动广告</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%88%B7%E6%96%B0%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text">
+          刷新原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RAC%E4%B8%80%E4%B8%AA%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0%E5%88%B7%E6%96%B0"><span class="toc-number">2.</span> <span class="toc-text">
+          RAC一个方法实现刷新</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icon/big.png" alt="avatar"></div><p class="sidebar-ov-author__text">cbsfly</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">9</div><div class="sidebar-ov-state-item__name">归档</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>cbsfly</span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.4.0</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.6.2</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">访问人数</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">浏览总量</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ 文章无标题 ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', '请输入字符');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
