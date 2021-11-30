@@ -1,0 +1,613 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icon/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icon/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/images/icon/apple-touch-icon.png?v=2.6.2" sizes="180x180"><link rel="mask-icon" href="/images/icon/stun-logo.svg?v=2.6.2" color="#54bcff"><meta name="msapplication-TileImage" content="/images/icon/favicon-144x144.png"><meta name="msapplication-TileColor" content="#000000"><meta name="google-site-verification" content="TshY9NMaKRo9Dxk7EpnJLUzDhRXgchJgOGOtb2thjP0"><meta name="baidu-site-verification" content="code-svGRIKvFxb"><meta name="description" content="继续完成RAC的坑                       前言       经过上篇文章的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用add target语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="探究RAC-RAC信号处理方法归纳">
+<meta property="og:url" content="http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/index.html">
+<meta property="og:site_name" content="cbsfly">
+<meta property="og:description" content="继续完成RAC的坑                       前言       经过上篇文章的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用add target语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-05T03:08:27.225Z">
+<meta property="article:modified_time" content="2021-06-07T10:22:17.281Z">
+<meta property="article:author" content="cbsfly">
+<meta property="article:tag" content="云计算,Kubernetes,golang">
+<meta name="twitter:card" content="summary"><title>探究RAC-RAC信号处理方法归纳 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async="" data-pjax=""></script><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":false,"scrollDownIcon":true},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">探究RAC-RAC信号处理方法归纳</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.9k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">14分</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">阅读次数</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><p><em>继续完成RAC的坑</em></p>
+<hr />
+
+
+        <h1 id="前言"   >
+          <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
+      <p>经过<a href="http://cbsfly.github.io/ios/rac1/">上篇文章</a>的学习，相信不少读者已经熟悉了RAC的基本用法，可以尝试在以后的开发中不用<code>add target</code>语句了。这篇文章将稍微深入一点了解RAC的更多功能以及适用场合。</p>
+<span id="more"></span>
+
+
+        <h1 id="什么是信号"   >
+          <a href="#什么是信号" class="heading-link"><i class="fas fa-link"></i></a><a href="#什么是信号" class="headerlink" title="什么是信号"></a>什么是信号</h1>
+      <p>RAC的核心就是信号，即<code>RACSignal</code>。</p>
+<blockquote>
+<p>信号可以看做是传递信号的工具，当数据变化时，信号就会发送改变的信息，以通知信号的订阅者执行方法。</p>
+</blockquote>
+
+        <h2 id="热-冷信号"   >
+          <a href="#热-冷信号" class="heading-link"><i class="fas fa-link"></i></a><a href="#热-冷信号" class="headerlink" title="热/冷信号"></a>热/冷信号</h2>
+      <blockquote>
+<p>默认一个信号都是冷信号，也就是值改变了，也不会触发，只有订阅了这个信号，这个信号才会变为热信号，值改变了才会触发。</p>
+</blockquote>
+
+        <h2 id="自己动手写一个RACSignal"   >
+          <a href="#自己动手写一个RACSignal" class="heading-link"><i class="fas fa-link"></i></a><a href="#自己动手写一个RACSignal" class="headerlink" title="自己动手写一个RACSignal"></a>自己动手写一个RACSignal</h2>
+      <pre><code>//创建信号
+RACSignal *signal = [RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber) &#123;
+    [subscriber sendNext:@&quot;signal&quot;];
+    [subscriber sendCompleted];
+    return nil;
+&#125;];
+
+//订阅信号
+[signal subscribeNext:^(id x) &#123;
+    NSLog(@&quot;x = %@&quot;, x);
+&#125; error:^(NSError *error) &#123;
+    NSLog(@&quot;error = %@&quot;, error);
+&#125; completed:^&#123;
+    NSLog(@&quot;completed&quot;);
+&#125;];
+</code></pre>
+<p>这是一个信号从创建到接收的完整过程，我们接下来看看控制台输出了什么。</p>
+<pre><code>2016-01-05 14:33:06.106 RACStudyTest[895:38671] x = signal
+2016-01-05 14:33:06.106 RACStudyTest[895:38671] completed
+</code></pre>
+<p>可以看到，创建信号时我们sent了一个signal，在我们订阅<code>subscribeNext</code>时存储在x中的就是这个字符串signal。从这里看出来，不但我们可以给订阅者传递字符串，只要是一个类一个对象我们都可以传递。</p>
+<p>另一方面控制台输出了completed说明订阅信号部分的completed块下得方法也被执行了，这是因为饿哦在创建时发送完signal后又发送了一个completed。同理，error下得方法我们也可以这样调用。</p>
+<p>融汇贯通一下，我们之前学的所有RAC的用法就是一个创建信号订阅信号的过程！</p>
+
+        <h1 id="信号的处理"   >
+          <a href="#信号的处理" class="heading-link"><i class="fas fa-link"></i></a><a href="#信号的处理" class="headerlink" title="信号的处理"></a>信号的处理</h1>
+      
+        <h2 id="map"   >
+          <a href="#map" class="heading-link"><i class="fas fa-link"></i></a><a href="#map" class="headerlink" title="map"></a>map</h2>
+      <p>这里的map不是地图，而是映射的意思，就是创建一个订阅者的映射并且返回数据，具体用法我们来看代码。</p>
+<pre><code>[[self.textFild.rac_textSignal map:^id(id value) &#123;
+    NSLog(@&quot;%@&quot;, value);
+    return @1;
+&#125;] subscribeNext:^(id x) &#123;
+    NSLog(@&quot;%@&quot;, x);
+&#125;];
+</code></pre>
+<p>在TextFild控件中输入good，输出：</p>
+<pre><code>2016-01-05 15:02:15.180 RACStudyTest[1418:57245] 1
+2016-01-05 15:02:21.710 RACStudyTest[1418:57245] g
+2016-01-05 15:02:21.711 RACStudyTest[1418:57245] 1
+2016-01-05 15:02:22.954 RACStudyTest[1418:57245] go
+2016-01-05 15:02:22.955 RACStudyTest[1418:57245] 1
+2016-01-05 15:02:23.464 RACStudyTest[1418:57245] goo
+2016-01-05 15:02:23.464 RACStudyTest[1418:57245] 1
+2016-01-05 15:02:23.705 RACStudyTest[1418:57245] good
+2016-01-05 15:02:23.705 RACStudyTest[1418:57245] 1  
+</code></pre>
+<p>还是之前那个监听textfild编辑变化的例子，可以看到，当信号被订阅变成热信号后，这里的map构造的映射块value的值就是控件中的字符变化，而订阅者x的值就是映射者的返回值1。</p>
+<p>根据这个功能我们就可以对我们监测的东西和我们需求的东西进行转换。比如监听了字符串变化，我们需要的时变化后的字符串长度而不是变化的字符串本身，则可以在map的返回值中返回<code>text.length</code>，就可以实时捕获到字符串长度；甚至做一个映射表，将各个变化进行一对一或者一对多或者多对一的处理。</p>
+
+        <h2 id="filter"   >
+          <a href="#filter" class="heading-link"><i class="fas fa-link"></i></a><a href="#filter" class="headerlink" title="filter"></a>filter</h2>
+      <p>filter就是过滤，它可以帮助你筛选出你需要的信号变化。</p>
+<pre><code>[[self.textFild.rac_textSignal filter:^BOOL(NSString *value) &#123;
+    return [value length] &gt; 3;
+&#125;] subscribeNext:^(id x) &#123;
+    NSLog(@&quot;x = %@&quot;, x);
+&#125;];
+</code></pre>
+<p>输入goodnight，输出：</p>
+<pre><code>2016-01-05 15:18:20.492 RACStudyTest[1490:66721] x = good
+2016-01-05 15:18:27.917 RACStudyTest[1490:66721] x = goodn
+2016-01-05 15:18:28.129 RACStudyTest[1490:66721] x = goodni
+2016-01-05 15:18:28.433 RACStudyTest[1490:66721] x = goodnig
+2016-01-05 15:18:28.930 RACStudyTest[1490:66721] x = goodnigh
+2016-01-05 15:18:29.155 RACStudyTest[1490:66721] x = goodnight
+</code></pre>
+<p>上述例子是在字符串长度大于3时才会输出变换后的字符串。</p>
+
+        <h2 id="take-skip-repeat"   >
+          <a href="#take-skip-repeat" class="heading-link"><i class="fas fa-link"></i></a><a href="#take-skip-repeat" class="headerlink" title="take/skip/repeat"></a>take/skip/repeat</h2>
+      <p>take是获取，skip是跳过，这两个方法后面跟着的都是NSInteger。所以<code>take 2</code>就是获取前两个信号，<code>skip 2</code>就是跳过前两个。repeat是重复发送信号。</p>
+<pre><code>RACSignal *signal = [[RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber) &#123;
+    [subscriber sendNext:@&quot;1&quot;];
+    [subscriber sendNext:@&quot;2&quot;];
+    [subscriber sendNext:@&quot;3&quot;];
+    [subscriber sendNext:@&quot;4&quot;];
+    [subscriber sendNext:@&quot;5&quot;];
+    [subscriber sendCompleted];
+    return nil;
+&#125;] take:2];
+
+[signal subscribeNext:^(id x) &#123;
+    NSLog(@&quot;%@&quot;, x);
+&#125;completed:^&#123;
+    NSLog(@&quot;completed&quot;);
+&#125;];
+</code></pre>
+<p>这个demo只会输出前两个信号1和2还有完成信号completed，skip,repeat同理。</p>
+<p>相似的还有<code>takeLast</code> <code>takeUntil</code> <code>takeWhileBlock</code> <code>skipWhileBlock</code> <code>skipUntilBlock</code> <code>repeatWhileBlock</code>都可以根据字面意思来理解。</p>
+
+        <h2 id="delay"   >
+          <a href="#delay" class="heading-link"><i class="fas fa-link"></i></a><a href="#delay" class="headerlink" title="delay"></a>delay</h2>
+      <p>延时信号，顾名思义，即延迟发送信号。</p>
+<pre><code>RACSignal *signal = [[RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber) &#123;
+    [subscriber sendNext:@&quot;delay&quot;];
+    [subscriber sendCompleted];
+    return nil;
+&#125;] delay:2];
+
+NSLog(@&quot;tag&quot;);
+
+[signal subscribeNext:^(id x) &#123;
+    NSLog(@&quot;%@&quot;, x);
+&#125;];
+</code></pre>
+<p>输出：</p>
+<pre><code>2016-01-05 15:27:55.908 RACStudyTest[1543:71256] tag
+2016-01-05 15:27:58.102 RACStudyTest[1543:71256] delay
+</code></pre>
+<p>看时间可以发现订阅者延迟了2秒才收到信号打印出x的值。<em>PS：还有0.2s误差是因为运行到不同代码行的时间差</em></p>
+
+        <h2 id="throttle"   >
+          <a href="#throttle" class="heading-link"><i class="fas fa-link"></i></a><a href="#throttle" class="headerlink" title="throttle"></a>throttle</h2>
+      <p>节流，在我们做搜索框的时候，有时候需求的时实时搜索，即用户每每输入字符，view都要求展现搜索结果。这时如果用户搜索的字符串较长，那么由于网络请求的延时可能造成UI显示错误，并且多次不必要的请求还会加大服务器的压力，这显然是不合理的，此时我们就需要用到节流。</p>
+<pre><code>[[[self.textFild rac_textSignal] throttle:0.5] subscribeNext:^(id x) &#123;
+    NSLog(@&quot;%@&quot;, x);
+&#125;];
+</code></pre>
+<p>加了节流管道，后面跟上了类型为NSTimeInterval的参数后，只有0.5S内信号不产生变化才会发送请求，这样快速的输入也不会造成多次输出。</p>
+
+        <h2 id="distinctUntilChanged"   >
+          <a href="#distinctUntilChanged" class="heading-link"><i class="fas fa-link"></i></a><a href="#distinctUntilChanged" class="headerlink" title="distinctUntilChanged"></a>distinctUntilChanged</h2>
+      <p>网络请求中为了减轻服务器压力，无用的请求我们应该尽可能不发送。<code>distinctUntilChanged</code>的作用是使RAC不会连续发送两次相同的信号，这样就解决了这个问题。</p>
+<pre><code>[[[self.textFild rac_textSignal] distinctUntilChanged] subscribeNext:^(id x) &#123;
+    NSLog(@&quot;%@&quot;, x);
+&#125;];   
+</code></pre>
+
+        <h2 id="timeout"   >
+          <a href="#timeout" class="heading-link"><i class="fas fa-link"></i></a><a href="#timeout" class="headerlink" title="timeout"></a>timeout</h2>
+      <p>超时信号，当超出限定时间后会给订阅者发送error信号。</p>
+<pre><code>RACSignal *signal = [[RACSignal createSignal:^RACDisposable *(id&lt;RACSubscriber&gt; subscriber) &#123;
+    [[RACScheduler mainThreadScheduler] afterDelay:3 schedule:^&#123;
+        [subscriber sendNext:@&quot;delay&quot;];
+        [subscriber sendCompleted];
+    &#125;];
+    return nil;
+&#125;] timeout:2 onScheduler:[RACScheduler mainThreadScheduler]];
+
+[signal subscribeNext:^(id x) &#123;
+    NSLog(@&quot;%@&quot;, x);
+&#125; error:^(NSError *error) &#123;
+    NSLog(@&quot;%@&quot;, error);
+&#125;];
+</code></pre>
+<p>输出：</p>
+<pre><code>2016-01-05 15:41:58.686 RACStudyTest[1604:76716] Error Domain=RACSignalErrorDomain Code=1 &quot;The operation couldn’t be completed. (RACSignalErrorDomain error 1.)&quot;
+</code></pre>
+<p>由于在创建信号是限定了延迟3秒发送，但是加了timeout2秒的限定，所以这一定是一个超时信号。这个信号被订阅后，由于超时，不会执行订阅成功的输出x方法，而是跳到error的块输出了错误信息。timeout在用RAC封装网络请求时可以节省不少的代码量。</p>
+
+        <h2 id="ignore"   >
+          <a href="#ignore" class="heading-link"><i class="fas fa-link"></i></a><a href="#ignore" class="headerlink" title="ignore"></a>ignore</h2>
+      <p>忽略信号，指定一个任意类型的量（可以是字符串，数组等），当需要发送信号时讲进行判断，若相同则该信号会被忽略发送。</p>
+<pre><code>[[[self.textFild rac_textSignal] ignore:@&quot;good&quot;] subscribeNext:^(id x) &#123;
+    NSLog(@&quot;%@&quot;, x);
+&#125;];
+</code></pre>
+
+        <h1 id="总结"   >
+          <a href="#总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#总结" class="headerlink" title="总结"></a>总结</h1>
+      <p>这篇文章比上一篇稍稍深入了RAC的附加功能，但还有很多例如扁平映射<code>flattenMap</code>，Signal of Signals都没有提到，RAC的东西实在太多太多，我说的也仅仅是九牛一毛。我将继续研究RAC的深入用法，并发文给大家介绍。如果文中有什么错误，也希望大家给我指出来，我将万分感谢。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://cbsfly.github.io">cbsfly</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/">http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2021/03/05/2016-02-24-rollview/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">摆脱第三方库系列（二）- 自己写一个滚动广告</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2021/03/05/2016-01-03-rac1/"><span class="paginator-prev__text">学习RAC小记-适合给新手看的RAC用法总结</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">
+          前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E4%BF%A1%E5%8F%B7"><span class="toc-number">2.</span> <span class="toc-text">
+          什么是信号</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD-%E5%86%B7%E4%BF%A1%E5%8F%B7"><span class="toc-number">2.1.</span> <span class="toc-text">
+          热&#x2F;冷信号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%B7%B1%E5%8A%A8%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AARACSignal"><span class="toc-number">2.2.</span> <span class="toc-text">
+          自己动手写一个RACSignal</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%A1%E5%8F%B7%E7%9A%84%E5%A4%84%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">
+          信号的处理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#map"><span class="toc-number">3.1.</span> <span class="toc-text">
+          map</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#filter"><span class="toc-number">3.2.</span> <span class="toc-text">
+          filter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#take-skip-repeat"><span class="toc-number">3.3.</span> <span class="toc-text">
+          take&#x2F;skip&#x2F;repeat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#delay"><span class="toc-number">3.4.</span> <span class="toc-text">
+          delay</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#throttle"><span class="toc-number">3.5.</span> <span class="toc-text">
+          throttle</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#distinctUntilChanged"><span class="toc-number">3.6.</span> <span class="toc-text">
+          distinctUntilChanged</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#timeout"><span class="toc-number">3.7.</span> <span class="toc-text">
+          timeout</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ignore"><span class="toc-number">3.8.</span> <span class="toc-text">
+          ignore</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">
+          总结</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icon/big.png" alt="avatar"></div><p class="sidebar-ov-author__text">cbsfly</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/cbsfly" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">14</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">3</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">11</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>cbsfly</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">访问人数</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">浏览总量</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ 文章无标题 ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', '请输入字符');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (true) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"><script src></script><script>function initQuicklink() {
+  quicklink({
+    timeout: '10000',
+    priority: true,
+    ignores: [uri => uri.includes('#'), uri => uri === 'http://cbsfly.github.io/2021/03/05/2016-01-06-rac2/', /\/api\/?/,uri => uri.includes('.xml'),uri => uri.includes('.zip'),(uri, el) => el.hasAttribute('nofollow'),(uri, el) => el.hasAttribute('noprefetch')]
+  });
+}
+
+if (true || false) {
+  initQuicklink();
+} else {
+  window.addEventListener('DOMContentLoaded', initQuicklink, false);
+}</script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script></div><script data-pjax="">function loadUtterances() {
+  var d = document, s = d.createElement('script');
+  var container = d.getElementById('utterances-container');
+
+  if (!container) {
+    return;
+  }
+  s.src = 'https://utteranc.es/client.js';
+  s.setAttribute('repo', 'cbsfly/cbsfly.github.io');
+  s.setAttribute('issue-term', 'title');
+  s.setAttribute('label', 'utterances');
+  s.setAttribute('theme', 'github-light');
+  s.setAttribute('crossorigin', 'anonymous');
+  s.setAttribute('async', '');
+  if (true) {
+    s.setAttribute('data-pjax-rm', '');
+  }
+  container.append(s);
+}
+
+if (true) {
+  loadUtterances();
+} else {
+  window.addEventListener('DOMContentLoaded', loadUtterances, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>

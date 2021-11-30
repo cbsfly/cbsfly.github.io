@@ -1,0 +1,610 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icon/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icon/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/images/icon/apple-touch-icon.png?v=2.6.2" sizes="180x180"><link rel="mask-icon" href="/images/icon/stun-logo.svg?v=2.6.2" color="#54bcff"><meta name="msapplication-TileImage" content="/images/icon/favicon-144x144.png"><meta name="msapplication-TileColor" content="#000000"><meta name="google-site-verification" content="TshY9NMaKRo9Dxk7EpnJLUzDhRXgchJgOGOtb2thjP0"><meta name="baidu-site-verification" content="code-svGRIKvFxb"><meta name="description" content="前言       摆脱第三方库系列第二章，我将介绍滚动广告的写法。在一些信息聚合类APP中滚动广告非常常见或者说必不可少，他可以不需要用户操作展示一些开发者想展示的东西，原理其实也很简单。我写的滚动广告主要实现自动滚动和循环滚动这两个功能，至于广告的点击事件或者美化这都是后话了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="摆脱第三方库系列（二）- 自己写一个滚动广告">
+<meta property="og:url" content="http://cbsfly.github.io/2021/03/05/2016-02-24-rollview/index.html">
+<meta property="og:site_name" content="cbsfly">
+<meta property="og:description" content="前言       摆脱第三方库系列第二章，我将介绍滚动广告的写法。在一些信息聚合类APP中滚动广告非常常见或者说必不可少，他可以不需要用户操作展示一些开发者想展示的东西，原理其实也很简单。我写的滚动广告主要实现自动滚动和循环滚动这两个功能，至于广告的点击事件或者美化这都是后话了。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/rollpage.gif">
+<meta property="article:published_time" content="2021-03-05T03:08:27.226Z">
+<meta property="article:modified_time" content="2021-06-07T10:22:53.521Z">
+<meta property="article:author" content="cbsfly">
+<meta property="article:tag" content="云计算,Kubernetes,golang">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/rollpage.gif"><title>摆脱第三方库系列（二）- 自己写一个滚动广告 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/03/05/2016-02-24-rollview/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async="" data-pjax=""></script><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":false,"scrollDownIcon":true},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">摆脱第三方库系列（二）- 自己写一个滚动广告</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-03-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-06-07</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">1.8k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">12分</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">阅读次数</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body">
+        <h1 id="前言"   >
+          <a href="#前言" class="heading-link"><i class="fas fa-link"></i></a><a href="#前言" class="headerlink" title="前言"></a>前言</h1>
+      <p>摆脱第三方库系列第二章，我将介绍滚动广告的写法。在一些信息聚合类APP中滚动广告非常常见或者说必不可少，他可以不需要用户操作展示一些开发者想展示的东西，原理其实也很简单。我写的滚动广告主要实现自动滚动和循环滚动这两个功能，至于广告的点击事件或者美化这都是后话了。</p>
+<span id="more"></span>
+
+
+        <h1 id="滚动广告基本原理"   >
+          <a href="#滚动广告基本原理" class="heading-link"><i class="fas fa-link"></i></a><a href="#滚动广告基本原理" class="headerlink" title="滚动广告基本原理"></a>滚动广告基本原理</h1>
+      <p>其实只要是滚动的东西都离不开UISCrollView，滚动广告的原理就是在一个横向的UISCrollView上放置多张图片并插入文字，然后设置时间自动翻页，点击事件可以通过设置代理方法完成。</p>
+<p>而循环播放的原理是这样的，假使我们有五张广告图需要播放，那么我们在UISCrollView应该插入七张图片，除开头尾两张后中间剩下的五张按顺序放置我们要展示的广告，那么头尾两部分放什么呢？</p>
+<blockquote>
+<p>头部分应该放最后一张也就是第五张广告图，尾部分应该放第一张广告图</p>
+</blockquote>
+<p>这样当用户看到第一张广告图并向左移动时就会出现第五张广告图，然后我们应该在代码中使用一些“小手段”，当广告页滚动到头页的时候应该自动跳到倒数第二页也就是第五张广告页。这样就完成了一个看起来可以循环的轮播广告了。</p>
+
+        <h1 id="代码实现"   >
+          <a href="#代码实现" class="heading-link"><i class="fas fa-link"></i></a><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1>
+      <p>先上完成效果图</p>
+<p><img src="https://github.com/cbsfly/cbsfly.github.io/raw/master/images/posts/iOS/rollpage.gif" alt="wait"></p>
+<p>接下来上代码，先创建一个继承于UIView的子类RollView，这里不推荐直接继承于UISCrollView，那样可能会因为控件层次问题出现有些控件被覆盖了。</p>
+
+        <h2 id="接口部分"   >
+          <a href="#接口部分" class="heading-link"><i class="fas fa-link"></i></a><a href="#接口部分" class="headerlink" title="接口部分"></a>接口部分</h2>
+      <p>RollView接口部分如下</p>
+<pre><code>@interface RollView : UIView&lt;UIScrollViewDelegate&gt;
+@property (nonatomic, strong) UIScrollView *rollScrollView;
+@property (nonatomic, strong) NSMutableArray *imageArray;
+@property (nonatomic, strong) UIImageView *rollImgView;
+@property (nonatomic, strong) UIPageControl *pageControl;
+@property (nonatomic, strong) NSTimer *timer;
+@end
+</code></pre>
+<p>UIPageControl是一个苹果公司给的页面小点的控件，也是滚动广告比较常见的需要添加的控件。而<code>imageArray</code>主要是为了存储多个广告图，可以自己封装一个UIImageView这样就可以让自己的广告更加个性了。</p>
+<p>为了简化代码先宏定义下</p>
+<pre><code>#define COUNT self.imageArray.count
+#define SVIEWWIDTH self.frame.size.width
+#define SVIEWHEIGHT self.frame.size.height
+</code></pre>
+
+        <h2 id="RollView初始化"   >
+          <a href="#RollView初始化" class="heading-link"><i class="fas fa-link"></i></a><a href="#RollView初始化" class="headerlink" title="RollView初始化"></a>RollView初始化</h2>
+      <p>先看自身的初始化方法，很简单，<code>addNSTimer</code>方法是添加一个定时器滚动，一会再介绍。</p>
+<pre><code>- (instancetype)initWithFrame:(CGRect)frame
+&#123;
+    self = [super initWithFrame:frame];
+    if(self)&#123;
+        [self addSubview:self.rollScrollView];
+        [self addSubview:self.pageControl];
+        [self addNSTimer];
+    &#125;
+    return self;
+&#125;
+</code></pre>
+
+        <h2 id="各个控件get方法"   >
+          <a href="#各个控件get方法" class="heading-link"><i class="fas fa-link"></i></a><a href="#各个控件get方法" class="headerlink" title="各个控件get方法"></a>各个控件get方法</h2>
+      <p>接下来看get方法</p>
+<pre><code>- (UIScrollView *)rollScrollView
+&#123;
+    if (_rollScrollView == nil) &#123;
+        _rollScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SVIEWWIDTH, SVIEWHEIGHT)];
+        _rollScrollView.delegate = self;
+        _rollScrollView.contentSize = CGSizeMake((COUNT + 2) * SVIEWWIDTH, SVIEWHEIGHT);
+        //使子视图imageview自动适配scrollview的大小
+        [_rollScrollView setAutoresizesSubviews:YES];
+        //将scrollview设成分页形式
+        [_rollScrollView setPagingEnabled:YES];
+        //隐藏scrollview两边的滚动条
+        [_rollScrollView setShowsVerticalScrollIndicator:NO];
+        [_rollScrollView setShowsHorizontalScrollIndicator:NO];
+        //设置scrollview初始的位置为第二部分来显示第一张广告
+        _rollScrollView.contentOffset = CGPointMake(SVIEWWIDTH, 0);
+    &#125;
+    return _rollScrollView;
+&#125;
+</code></pre>
+<p>什么是UISCrollView的contentSize我在<a href="http://cbsfly.github.io/ios/rac-refresh">这篇文章</a>讲过。由于要循环播放所以要加两张图片，所以宽度为<code>(COUNT + 2) * SVIEWWIDTH</code>，其他解释写在注释里了。</p>
+<p>然后是pageControl的get方法。</p>
+<pre><code>- (UIPageControl *)pageControl
+&#123;
+    if (_pageControl == nil) &#123;
+        _pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake((SVIEWWIDTH - _pageControl.bounds.size.width)/2, SVIEWHEIGHT - 10, _pageControl.bounds.size.width, _pageControl.bounds.size.height)];
+        _pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
+        _pageControl.pageIndicatorTintColor = [UIColor grayColor];
+        [_pageControl setNumberOfPages:COUNT];
+    &#125;
+    return _pageControl;
+&#125;
+</code></pre>
+<p>其中<code>currentPageIndicatorTintColor</code>是点移动到当前点时的颜色，<code>pageIndicatorTintColor</code>是没移动到的点的颜色。</p>
+<p>然后在<code>imageArray</code>中添加我们的广告图片，由于NSArray是可以存储任何对象类型的，所以我们可以存储广告图也可以直接存UIImageView，这里我是存了任意的五张UIImage，就不上代码了，直接看<code>rollImgView</code>。</p>
+<pre><code>- (UIImageView *)rollImgView
+&#123;
+    if (_rollImgView == nil) &#123;
+        //第一个放最后一个图片
+        _rollImgView = [[UIImageView alloc] init];
+        _rollImgView.frame = CGRectMake(0, 0, SVIEWWIDTH, SVIEWHEIGHT);
+        [_rollImgView setImage:[_imageArray objectAtIndex:(COUNT - 1)]];
+        [self.rollScrollView addSubview:_rollImgView];
+        //最后一个放第一张图片
+        _rollImgView = [[UIImageView alloc] init];
+        _rollImgView.frame = CGRectMake(SVIEWWIDTH * (COUNT + 1), 0, SVIEWWIDTH, SVIEWHEIGHT);
+        [_rollImgView setImage:[_imageArray objectAtIndex:0]];
+        [self.rollScrollView addSubview:_rollImgView];
+    
+        for (int i = 0; i &lt; COUNT; i++) &#123;
+            _rollImgView = [[UIImageView alloc] init];
+            _rollImgView.frame = CGRectMake(SVIEWWIDTH * (i + 1), 0, SVIEWWIDTH, SVIEWHEIGHT);
+            [_rollImgView setImage:[_imageArray objectAtIndex:i]];
+            [self.rollScrollView addSubview:_rollImgView];
+        &#125;
+    &#125;
+    return _rollImgView;
+&#125;
+</code></pre>
+<p>这里需要注意的就是每个图片需要放置的frame，想不明白的自己动手画个草稿就一目了然了。我是设置了五张广告图片所以我们应该用七张UIImageView，所以要初始化七次添加七次，可能有点不合理，有更好的办法希望留言告诉我。</p>
+
+        <h2 id="scrollView代理部分"   >
+          <a href="#scrollView代理部分" class="heading-link"><i class="fas fa-link"></i></a><a href="#scrollView代理部分" class="headerlink" title="scrollView代理部分"></a>scrollView代理部分</h2>
+      <pre><code>- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+&#123;
+    if (scrollView.contentOffset.x == 0) &#123;
+        self.rollScrollView.contentOffset = CGPointMake(COUNT * SVIEWWIDTH, 0);
+        self.pageControl.currentPage = (COUNT - 1);
+    &#125;else if (scrollView.contentOffset.x == (COUNT + 1) * SVIEWWIDTH)&#123;
+        self.rollScrollView.contentOffset = CGPointMake(SVIEWWIDTH, 0);
+        self.pageControl.currentPage = 0;
+    &#125;else&#123;
+        int pagenum = (round(scrollView.contentOffset.x/self.rollImgView.frame.size.width) - 1);
+        [self.pageControl setCurrentPage:pagenum];
+    &#125;
+&#125;
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+&#123;
+    [self removeNSTimer];
+&#125;
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+&#123;
+    [self addNSTimer];
+&#125;
+</code></pre>
+<p>主要代码都在<code>scrollViewDidScroll</code>方法中，就是在scrollview滚动时调用的方法。这里主要就是前面提到的实现循环滚动的“小手段”了。</p>
+<p>当<code>scrollView.contentOffset.x == 0</code>时，说明的此时显示的是头imageview即第五张广告，那么我们需要跳动到第五张广告也就是第六张imageview来完成循环效果，同时也别忘记改版pageControl的当前点。由于是5个点，那么下标是0-4，所以是标到<code>(COUNT - 1)</code>处。</p>
+<p><code>scrollView.contentOffset.x == (COUNT + 1) * SVIEWWIDTH</code>表示的是在尾imageview时的操作。</p>
+<p>如果既不在头也不在尾，我们只需要在滚动时改变标签点就可以了。其中<code>round</code>是表示取四舍五入的整数，这样改变标签点更合理。</p>
+<p>下面两个方法是说我们鼠标按住scrollview时我们应该取消计时器不再计时，松开手时再开始计时。</p>
+
+        <h2 id="计时器"   >
+          <a href="#计时器" class="heading-link"><i class="fas fa-link"></i></a><a href="#计时器" class="headerlink" title="计时器"></a>计时器</h2>
+      <pre><code>- (void)addNSTimer
+&#123;
+    if (self.timer == nil) &#123;
+        NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:4 target:self selector:@selector(nextPage) userInfo:nil repeats:YES];
+        [[NSRunLoop mainRunLoop]addTimer:timer forMode:NSRunLoopCommonModes];
+        self.timer = timer;
+    &#125;
+&#125;
+
+- (void)removeNSTimer
+&#123;
+    [self.timer invalidate];
+    self.timer =nil;
+&#125;
+
+- (void)nextPage
+&#123;
+    if (self.rollScrollView.contentOffset.x == ((COUNT) * self.rollImgView.frame.size.width)) &#123;
+        [self.rollScrollView scrollRectToVisible:CGRectMake(SVIEWWIDTH, 0, SVIEWWIDTH, SVIEWHEIGHT) animated:YES];
+    &#125;else&#123;
+        [self.rollScrollView scrollRectToVisible:CGRectMake(self.rollScrollView.contentOffset.x + self.rollImgView.frame.size.width, 0, SVIEWWIDTH, SVIEWHEIGHT) animated:YES];
+    &#125;
+&#125;
+</code></pre>
+<p>这里主要是三个自定义方法，顾名思义都比较简单，这里不做详细介绍了。</p>
+<p>接下来就将RollView添加到ViewController中就可以展示了。</p>
+
+        <h1 id="总结"   >
+          <a href="#总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#总结" class="headerlink" title="总结"></a>总结</h1>
+      <p>这样滚动广告差不多就介绍完了，我只是介绍了基本原理，在我们的开发中肯定是不能完全满足需求的，所以还要加一些自定义的更改。比如用自定义的imageview并用代理方法增加点击事件，或者直接不用imageview用buttun。demo我也会放到我的<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/cbsfly/cbsRollView" >github</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>上。</p>
+<p>还是那句话，如果有错还请指出，万分感谢。</p>
+
+        <h1 id="相关文章"   >
+          <a href="#相关文章" class="heading-link"><i class="fas fa-link"></i></a><a href="#相关文章" class="headerlink" title="相关文章"></a>相关文章</h1>
+      <p><a href="http://cbsfly.github.io/ios/slipview">摆脱第三方库系列（一）-自己写一个侧拉菜单</a></p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://cbsfly.github.io">cbsfly</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://cbsfly.github.io/2021/03/05/2016-02-24-rollview/">http://cbsfly.github.io/2021/03/05/2016-02-24-rollview/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2021/03/05/2016-02-23-slipview/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">摆脱第三方库系列（一）- 自己写一个侧拉菜单</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2021/03/05/2016-01-06-rac2/"><span class="paginator-prev__text">探究RAC-RAC信号处理方法归纳</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">
+          前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%BB%9A%E5%8A%A8%E5%B9%BF%E5%91%8A%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">
+          滚动广告基本原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">
+          代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E9%83%A8%E5%88%86"><span class="toc-number">3.1.</span> <span class="toc-text">
+          接口部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RollView%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">3.2.</span> <span class="toc-text">
+          RollView初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%84%E4%B8%AA%E6%8E%A7%E4%BB%B6get%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text">
+          各个控件get方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#scrollView%E4%BB%A3%E7%90%86%E9%83%A8%E5%88%86"><span class="toc-number">3.4.</span> <span class="toc-text">
+          scrollView代理部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%A1%E6%97%B6%E5%99%A8"><span class="toc-number">3.5.</span> <span class="toc-text">
+          计时器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">
+          总结</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">
+          相关文章</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icon/big.png" alt="avatar"></div><p class="sidebar-ov-author__text">cbsfly</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/cbsfly" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">14</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">3</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">11</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>cbsfly</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">访问人数</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">浏览总量</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ 文章无标题 ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', '请输入字符');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (true) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"><script src></script><script>function initQuicklink() {
+  quicklink({
+    timeout: '10000',
+    priority: true,
+    ignores: [uri => uri.includes('#'), uri => uri === 'http://cbsfly.github.io/2021/03/05/2016-02-24-rollview/', /\/api\/?/,uri => uri.includes('.xml'),uri => uri.includes('.zip'),(uri, el) => el.hasAttribute('nofollow'),(uri, el) => el.hasAttribute('noprefetch')]
+  });
+}
+
+if (true || false) {
+  initQuicklink();
+} else {
+  window.addEventListener('DOMContentLoaded', initQuicklink, false);
+}</script><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script></div><script data-pjax="">function loadUtterances() {
+  var d = document, s = d.createElement('script');
+  var container = d.getElementById('utterances-container');
+
+  if (!container) {
+    return;
+  }
+  s.src = 'https://utteranc.es/client.js';
+  s.setAttribute('repo', 'cbsfly/cbsfly.github.io');
+  s.setAttribute('issue-term', 'title');
+  s.setAttribute('label', 'utterances');
+  s.setAttribute('theme', 'github-light');
+  s.setAttribute('crossorigin', 'anonymous');
+  s.setAttribute('async', '');
+  if (true) {
+    s.setAttribute('data-pjax-rm', '');
+  }
+  container.append(s);
+}
+
+if (true) {
+  loadUtterances();
+} else {
+  window.addEventListener('DOMContentLoaded', loadUtterances, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
