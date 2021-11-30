@@ -1,18 +1,15 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icon/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icon/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/images/icon/apple-touch-icon.png?v=2.6.2" sizes="180x180"><link rel="mask-icon" href="/images/icon/stun-logo.svg?v=2.6.2" color="#54bcff"><meta name="msapplication-TileImage" content="/images/icon/favicon-144x144.png"><meta name="msapplication-TileColor" content="#000000"><meta name="google-site-verification" content="TshY9NMaKRo9Dxk7EpnJLUzDhRXgchJgOGOtb2thjP0"><meta name="baidu-site-verification" content="code-svGRIKvFxb"><meta name="description" content="最近在环境中部署了一个 Virtual-Kubelet，由于它与 APIServer 的证书交互出了一些问题，导致了一些功能不可用，故去了解了下 K8s 集群的所有证书与关系，做一个梳理。">
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icon/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icon/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/images/icon/apple-touch-icon.png?v=2.6.2" sizes="180x180"><link rel="mask-icon" href="/images/icon/stun-logo.svg?v=2.6.2" color="#54bcff"><meta name="msapplication-TileImage" content="/images/icon/favicon-144x144.png"><meta name="msapplication-TileColor" content="#000000"><meta name="google-site-verification" content="TshY9NMaKRo9Dxk7EpnJLUzDhRXgchJgOGOtb2thjP0"><meta name="baidu-site-verification" content="code-svGRIKvFxb"><meta name="description" content="最近在梳理 Kubelet 的源码实现，整理了下 Pod 状态转换的逻辑。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="K8s 集群证书问题记录">
-<meta property="og:url" content="http://cbsfly.github.io/2021/11/24/2021-11-24-k8s-certs/index.html">
+<meta property="og:title" content="K8s Pod 状态何时会为 Failed">
+<meta property="og:url" content="http://cbsfly.github.io/2021/11/30/2021-11-30-kubelet/index.html">
 <meta property="og:site_name" content="cbsfly">
-<meta property="og:description" content="最近在环境中部署了一个 Virtual-Kubelet，由于它与 APIServer 的证书交互出了一些问题，导致了一些功能不可用，故去了解了下 K8s 集群的所有证书与关系，做一个梳理。">
+<meta property="og:description" content="最近在梳理 Kubelet 的源码实现，整理了下 Pod 状态转换的逻辑。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-11-24T06:18:35.083Z">
-<meta property="article:modified_time" content="2021-11-24T08:37:52.367Z">
+<meta property="article:published_time" content="2021-11-30T03:14:46.903Z">
+<meta property="article:modified_time" content="2021-11-30T07:31:08.309Z">
 <meta property="article:author" content="cbsfly">
-<meta property="article:tag" content="安全">
-<meta property="article:tag" content="tls">
-<meta property="article:tag" content="https">
-<meta property="article:tag" content="Virtual-Kubelet">
-<meta name="twitter:card" content="summary"><title>K8s 集群证书问题记录 | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/11/24/2021-11-24-k8s-certs/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async="" data-pjax=""></script><script>var Stun = window.Stun || {};
+<meta property="article:tag" content="Kubelet">
+<meta name="twitter:card" content="summary"><title>K8s Pod 状态何时会为 Failed | cbsfly</title><link ref="canonical" href="http://cbsfly.github.io/2021/11/30/2021-11-30-kubelet/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-5132768110931519" async="" data-pjax=""></script><script>var Stun = window.Stun || {};
 var CONFIG = {
   root: '/',
   algolia: undefined,
@@ -36,52 +33,104 @@ var CONFIG = {
   sourcePath: {"js":"js","css":"css","images":"images"},
 };
 
-window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">K8s 集群证书问题记录</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-11-24</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-11-24</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">582</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">3分</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">阅读次数</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><p>最近在环境中部署了一个 Virtual-Kubelet，由于它与 APIServer 的证书交互出了一些问题，导致了一些功能不可用，故去了解了下 K8s 集群的所有证书与关系，做一个梳理。</p>
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">K8s Pod 状态何时会为 Failed</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2021-11-30</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2021-11-30</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">832</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">5分</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">阅读次数</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><p>最近在梳理 Kubelet 的源码实现，整理了下 Pod 状态转换的逻辑。</p>
 <span id="more"></span>
 
 
-        <h3 id="https-流程"   >
-          <a href="#https-流程" class="heading-link"><i class="fas fa-link"></i></a><a href="#https-流程" class="headerlink" title="https 流程"></a>https 流程</h3>
-      <p>想了解证书的关系，首先要弄清楚 https 的流程，可以先阅读<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000038406039" >这篇文章</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>。</p>
-<p>简单来说，完成一次 https 连接，需要有以下证书密钥互相传输：</p>
+        <h3 id="Kubelet-介绍"   >
+          <a href="#Kubelet-介绍" class="heading-link"><i class="fas fa-link"></i></a><a href="#Kubelet-介绍" class="headerlink" title="Kubelet 介绍"></a>Kubelet 介绍</h3>
+      <p>Kubelet 主要负责 Pod 状态的维护和更新，其中触发同步事件的来源有三种</p>
 <ul>
-<li>server 端公钥、证书</li>
-<li>client 端公钥、证书</li>
+<li>api：指 watch apiserver 获得的更新</li>
+<li>file：static pod 场景</li>
+<li>http：static pod 场景</li>
+</ul>
+<p>Kubelet 主要分为以下模块</p>
+<ul>
+<li><p>PLEG</p>
+<ul>
+<li>即Pod Lifecycle Event Generator。其维护着存储Pod 信息的cache，从运行时获取容器的信息，并根据前后两次信息对比，生成对应的PodLifecycleEvent，通过eventChannel发送到kubelet syncLoop进行消费，最终由kubelet syncPod完成Pod的同步，维护着用户的“期望”。</li>
+</ul>
+</li>
+<li><p>ProberManager</p>
+<ul>
+<li>负责探测 Pod 状态，主要的状态来源就是 ProberManager。</li>
+</ul>
+</li>
+<li><p>StatusManager</p>
+<ul>
+<li>负责将 Pod 状态同步致 APIServer。</li>
+</ul>
+</li>
+<li><p>VolumeManager</p>
+<ul>
+<li>维护真实挂载与期望挂载的一致性。</li>
+</ul>
+</li>
+<li><p>PodManager</p>
+<ul>
+<li>PodManager 在 Kubelet 中负责内存中 Pod 及 mirrorPod 的维护，任何在本节点上创建或删除操作都会同步更新 PodManager，即可以认为 PodManager 中存储了本节点上运行的 Pod 的信息。这里要对mirrorPod 做下说明，在 kubernetes 中，如果是 static pod，则由 Kubelet 直接创建，这时系统很难管理这部分 Pod；所以系统会在 Kubelet 中创建一个 static pod 对应的 mirrorPod，来表示 static pod。</li>
+</ul>
+</li>
+<li><p>PodWorkers</p>
+<p>处理 Pod 同步。核心方法 <code>managePodLoop()</code> 间接调用 <a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/master/pkg/kubelet/kubelet.go#L1540"><code>kubelet.syncPod()</code></a> 完成 Pod 的同步</p>
+<ul>
+<li>如果 Pod 正在被创建，记录其延迟</li>
+<li>生成 Pod 的 API Status，即 <code>v1.PodStatus</code>：从运行时的 status 转换成 api status</li>
+<li>记录 Pod 从 <code>pending</code> 到 <code>running</code> 的耗时</li>
+<li>在 <code>StatusManager</code> 中更新 pod 的状态</li>
+<li>杀掉不应该运行的 Pod</li>
+<li>如果网络插件未就绪，只启动使用了主机网络（host network）的 Pod</li>
+<li>如果 static pod 不存在，为其创建镜像（Mirror）Pod</li>
+<li>为 Pod 创建文件系统目录：Pod 目录、卷目录、插件目录</li>
+<li>使用 <code>VolumeManager</code> 为 Pod 挂载卷</li>
+<li>获取 image pull secrets</li>
+<li>调用容器运行时（container runtime）的 <code>#SyncPod()</code> 方法</li>
+</ul>
+</li>
 </ul>
 
-        <h3 id="问题现象"   >
-          <a href="#问题现象" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h3>
-      <p>用户使用 ServiceAccoutToken 分配的证书，无法访问 Virtual-Kubelet 上的 mtrics 接口，但是可以直接访问原生 Kubelet 的 metrics 接口。</p>
+        <h3 id="何时会进行-Pod-状态刷新？"   >
+          <a href="#何时会进行-Pod-状态刷新？" class="heading-link"><i class="fas fa-link"></i></a><a href="#何时会进行-Pod-状态刷新？" class="headerlink" title="何时会进行 Pod 状态刷新？"></a>何时会进行 Pod 状态刷新？</h3>
+      <ul>
+<li>一般情况下是 ProbeManager 会定时探测 container 的状态（如未配置 ReadinessProbe，默认上报 Success），然后调用 StatusManager 接口刷新到 APIServer，最终展示给用户。</li>
+<li>某些特殊场景会直接修改 Pod 状态，如 Pod 被驱逐，节点关闭等。</li>
+</ul>
 
-        <h3 id="问题分析"   >
-          <a href="#问题分析" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h3>
-      <p>一开始感觉是 Virtual-Kubelet 起的 TLS 服务配置问题，故先进行‘拆盲盒’，参考原生 Kubelet 配置，将 Virtual-Kubelet server 的 TLS 支持版本、支持算法等配置都进行了修改，但是没有解决问题。</p>
-<p>后来找了环境部署相关的同事做了了解，由于安全原因，我们 K8s 集群使用两套证书配置，其中一套用于 APIServer 提供 server（称为CA1），一套用于访问 Kubelet 作为 client（称为CA2），这两套使用不同的 CA 证书签发，所以无法直接互相访问。</p>
-<p>在两套证书的背景下，会发现理论上使用 ServiceAccoutToken 也应该访问不到原生 Kubelet 的 metrics 接口，因为 ServiceAccoutToken 是由 APIServer 的 server ca 证书（即CA1）签发的，而访问 metrics 接口的网络路由是用户 client 访问 APIServer server，然后 APIServer client 访问 Kubelet metrics 接口，Kubelet server 证书理论上应该是使用 CA2 签发的，应该无法访问。</p>
-
-        <h3 id="问题根因"   >
-          <a href="#问题根因" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题根因" class="headerlink" title="问题根因"></a>问题根因</h3>
-      <p>通过走读原生 <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/e53cf077240c8febae2abe947cfefc1e6335057f/cmd/kubelet/app/server.go#L1094" >Kubelet 代码</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>，发现了根因。</p>
-<figure class="highlight go"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(kc.Authentication.X509.ClientCAFile) &gt; <span class="number">0</span> &#123;</span><br><span class="line">	clientCAs, err := certutil.NewPool(kc.Authentication.X509.ClientCAFile)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;unable to load client CA file %s: %w&quot;</span>, kc.Authentication.X509.ClientCAFile, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// Specify allowed CAs for client certificates</span></span><br><span class="line">	tlsOptions.Config.ClientCAs = clientCAs</span><br><span class="line">	<span class="comment">// Populate PeerCertificates in requests, but don&#x27;t reject connections without verified certificates</span></span><br><span class="line">	tlsOptions.Config.ClientAuth = tls.RequestClientCert</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
-
-
-
-<p>原来 Kubelet Server 原生的配置对于 Client 证书的合法性并不做验证，只要提供了就可以访问。</p>
-
-        <h3 id="解决方案"   >
-          <a href="#解决方案" class="heading-link"><i class="fas fa-link"></i></a><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3>
-      <p>将 Virtual-Kubelet 的 ClientAuth 也 设置成 <code>tls.RequestClientCert</code>。</p>
+        <h3 id="何时-Pod-会失败？"   >
+          <a href="#何时-Pod-会失败？" class="heading-link"><i class="fas fa-link"></i></a><a href="#何时-Pod-会失败？" class="headerlink" title="何时 Pod 会失败？"></a>何时 Pod 会失败？</h3>
+      <p>以下情况会修改 Pod Phase 为 Failed。</p>
+<ul>
+<li>Pod Phase 是否为 Failed 由 containerStatus.State 决定（<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.20/pkg/kubelet/kubelet_pods.go#L1378" >源码参考</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>）。<ul>
+<li>initContainers 中某个 Container 为 Terminated 或者 Waiting（LastTerminationState.Terminated 不为空），且 Exsit Code 不等于0。</li>
+<li>所有 containers <strong>都为</strong> Terminated 或者 Waiting（LastTerminationState.Terminated 不为空），且存在一个以上 Pod Exsit Code 不等于0，此时如果 Pod 重启策略为 RestartPolicyNever，则会将 Pod Phase 置为 Failed。</li>
+</ul>
+</li>
+<li>其他特殊场景<ul>
+<li>Pod 遭驱逐时（spec.activeDeadlineSeconds 被设置且到期或资源不够被抢占或 API 调用）（<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.20/pkg/kubelet/kubelet_pods.go#L1488" >源码参考</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span> &amp; <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.20/pkg/kubelet/preemption/preemption.go#L93" >源码参考</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span> &amp; <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.20/pkg/kubelet/eviction/eviction_manager.go#L569" >源码参考</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>）。</li>
+<li>创建 Pod 时准入检查失败（<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.20/pkg/kubelet/kubelet.go#L2075" >源码参考</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>）。</li>
+<li>节点 shutdown 时（<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.20/pkg/kubelet/nodeshutdown/nodeshutdown_manager_linux.go#L220" >源码参考</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>）。</li>
+</ul>
+</li>
+</ul>
 
         <h3 id="参考文档"   >
           <a href="#参考文档" class="heading-link"><i class="fas fa-link"></i></a><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3>
-      <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/IbxRTQBOeKtL8AlC3R65Rw" >一文带你彻底厘清 Kubernetes 中的证书工作机制</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
-<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000038406039" >https的认证加密过程</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
-</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://cbsfly.github.io">cbsfly</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://cbsfly.github.io/2021/11/24/2021-11-24-k8s-certs/">http://cbsfly.github.io/2021/11/24/2021-11-24-k8s-certs/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://cbsfly.github.io/tags/%E5%AE%89%E5%85%A8/">安全</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://cbsfly.github.io/tags/tls/">tls</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://cbsfly.github.io/tags/https/">https</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://cbsfly.github.io/tags/Virtual-Kubelet/">Virtual-Kubelet</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2021/11/25/2021-11-25-update-status/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">K8s APIServer Status 接口问题记录</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2021/11/22/2021-11-22-termination-message/"><span class="paginator-prev__text">如何看到 Pod 的失败原因</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#https-%E6%B5%81%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">
-          https 流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="toc-number">2.</span> <span class="toc-text">
-          问题现象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">
-          问题分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%A0%B9%E5%9B%A0"><span class="toc-number">4.</span> <span class="toc-text">
-          问题根因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">5.</span> <span class="toc-text">
-          解决方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-number">6.</span> <span class="toc-text">
+      <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1768567" >https://cloud.tencent.com/developer/article/1768567</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd364d5" >https://jishuin.proginn.com/p/763bfbd364d5</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd36b91" >https://jishuin.proginn.com/p/763bfbd36b91</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/sphh9audcToHQvwhe3Otng" >https://mp.weixin.qq.com/s/sphh9audcToHQvwhe3Otng</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd37488" >https://jishuin.proginn.com/p/763bfbd37488</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1791692?from=article.detail.1768567" >https://cloud.tencent.com/developer/article/1791692?from=article.detail.1768567</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://fankangbest.github.io/2017/12/18/kubelet%E5%88%86%E6%9E%90(%E4%BA%94)-podManager-v1-5-2/" >https://fankangbest.github.io/2017/12/18/kubelet%E5%88%86%E6%9E%90(%E4%BA%94)-podManager-v1-5-2/</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://cizixs.com/2017/06/12/kubelet-source-code-analysis-part4-status-manager/" >https://cizixs.com/2017/06/12/kubelet-source-code-analysis-part4-status-manager/</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1559761" >https://cloud.tencent.com/developer/article/1559761</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.kubernetes.org.cn/7263.html" >https://www.kubernetes.org.cn/7263.html</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000040174600" >https://segmentfault.com/a/1190000040174600</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://cbsfly.github.io">cbsfly</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://cbsfly.github.io/2021/11/30/2021-11-30-kubelet/">http://cbsfly.github.io/2021/11/30/2021-11-30-kubelet/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://cbsfly.github.io/tags/Kubelet/">Kubelet</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2021/11/25/2021-11-25-update-status/"><span class="paginator-prev__text">K8s APIServer Status 接口问题记录</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kubelet-%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">
+          Kubelet 介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%95%E6%97%B6%E4%BC%9A%E8%BF%9B%E8%A1%8C-Pod-%E7%8A%B6%E6%80%81%E5%88%B7%E6%96%B0%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">
+          何时会进行 Pod 状态刷新？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%95%E6%97%B6-Pod-%E4%BC%9A%E5%A4%B1%E8%B4%A5%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">
+          何时 Pod 会失败？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="toc-number">4.</span> <span class="toc-text">
           参考文档</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icon/big.png" alt="avatar"></div><p class="sidebar-ov-author__text">cbsfly</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/cbsfly" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">14</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">3</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">11</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>cbsfly</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">访问人数</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">浏览总量</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="0,0,0" opacity="0.6" count="99" zIndex="-1"></script><script>function initSearch() {
   var isXML = true;
   var search_path = 'search.json';
@@ -425,7 +474,7 @@ if (Array.isArray(assistSearchList)) {
   quicklink({
     timeout: '10000',
     priority: true,
-    ignores: [uri => uri.includes('#'), uri => uri === 'http://cbsfly.github.io/2021/11/24/2021-11-24-k8s-certs/', /\/api\/?/,uri => uri.includes('.xml'),uri => uri.includes('.zip'),(uri, el) => el.hasAttribute('nofollow'),(uri, el) => el.hasAttribute('noprefetch')]
+    ignores: [uri => uri.includes('#'), uri => uri === 'http://cbsfly.github.io/2021/11/30/2021-11-30-kubelet/', /\/api\/?/,uri => uri.includes('.xml'),uri => uri.includes('.zip'),(uri, el) => el.hasAttribute('nofollow'),(uri, el) => el.hasAttribute('noprefetch')]
   });
 }
 
