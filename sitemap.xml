@@ -137,7 +137,28 @@
 
   
   <url>
-    <loc>http://cbsfly.github.io/tags/Kubelet/</loc>
+    <loc>http://cbsfly.github.io/tags/%E9%9B%86%E7%BE%A4%E4%B8%80%E8%87%B4%E6%80%A7/</loc>
+    <lastmod>2022-04-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/tags/e2e-test/</loc>
+    <lastmod>2022-04-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/tags/Pod/</loc>
+    <lastmod>2022-04-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/tags/terminationMessagePath/</loc>
     <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -186,34 +207,6 @@
   </url>
   
   <url>
-    <loc>http://cbsfly.github.io/tags/Pod/</loc>
-    <lastmod>2022-04-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://cbsfly.github.io/tags/terminationMessagePath/</loc>
-    <lastmod>2022-04-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://cbsfly.github.io/tags/%E9%9B%86%E7%BE%A4%E4%B8%80%E8%87%B4%E6%80%A7/</loc>
-    <lastmod>2022-04-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://cbsfly.github.io/tags/e2e-test/</loc>
-    <lastmod>2022-04-20</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>http://cbsfly.github.io/tags/clint-go/</loc>
     <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
@@ -222,6 +215,13 @@
   
   <url>
     <loc>http://cbsfly.github.io/tags/APIServer/</loc>
+    <lastmod>2022-04-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/tags/Kubelet/</loc>
     <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
