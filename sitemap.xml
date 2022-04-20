@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://cbsfly.github.io/2022/04/20/2022-04-20-testenv/</loc>
+    
+    <lastmod>2022-04-20</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://cbsfly.github.io/2021/12/23/2021-12-23-deletepod/</loc>
     
     <lastmod>2021-12-24</lastmod>
@@ -123,85 +130,99 @@
 
   <url>
     <loc>http://cbsfly.github.io/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   
   <url>
+    <loc>http://cbsfly.github.io/tags/Kubelet/</loc>
+    <lastmod>2022-04-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://cbsfly.github.io/tags/%E5%AE%89%E5%85%A8/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/tls/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/https/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/Virtual-Kubelet/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/tags/Kubebuilder/</loc>
+    <lastmod>2022-04-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://cbsfly.github.io/tags/controller-runtime/</loc>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/Pod/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/terminationMessagePath/</loc>
-    <lastmod>2021-12-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://cbsfly.github.io/tags/Kubelet/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/%E9%9B%86%E7%BE%A4%E4%B8%80%E8%87%B4%E6%80%A7/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/e2e-test/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/clint-go/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/tags/APIServer/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -210,21 +231,21 @@
   
   <url>
     <loc>http://cbsfly.github.io/categories/iOS/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/categories/Git/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://cbsfly.github.io/categories/Kubernetes/</loc>
-    <lastmod>2021-12-24</lastmod>
+    <lastmod>2022-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
